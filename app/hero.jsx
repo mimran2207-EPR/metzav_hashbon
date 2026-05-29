@@ -54,31 +54,37 @@ function BalanceCard({ totals, year, onPay }) {
     { label: "ריבית", val: totals.interest },
   ];
   return (
-    <Card pad={20} style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--teal-700)" }}>יתרה למשלם</span>
-        <Chip tone="gray"><Icon name="calendar" size={13} color="var(--ink-500)"/> שנת {year}</Chip>
+    <Card pad={22} style={{ display: "flex", flexDirection: "column", color: "#fff",
+      background: "linear-gradient(150deg,#0E525C 0%,#166F7C 48%,#1D8F9F 100%)", border: "1px solid transparent" }}>
+      {/* decorative glow */}
+      <div style={{ position: "absolute", insetInlineStart: -40, top: -50, width: 160, height: 160, borderRadius: 999,
+        background: "rgba(255,255,255,.08)", pointerEvents: "none" }}/>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
+        <span style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,.85)" }}>יתרה למשלם</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,.16)", color: "#fff",
+          fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 999, lineHeight: 1.4 }}>
+          <Icon name="calendar" size={13} color="#fff"/> שנת {year}
+        </span>
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
-        <span className="num" style={{ fontSize: 42, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1,
-          background: "linear-gradient(135deg,var(--teal-600) 0%,var(--teal-800) 100%)",
-          WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "var(--teal-700)" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 10, position: "relative" }}>
+        <span className="num" style={{ fontSize: 50, fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1, color: "#fff" }}>
           ₪{fmt(totals.balance)}
         </span>
-        <Chip tone="red" style={{ alignSelf: "center" }}>חובה</Chip>
+        <span style={{ display: "inline-flex", alignItems: "center", background: "#fff", color: "var(--red)",
+          fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 999, alignSelf: "center" }}>חובה</span>
       </div>
-      <div style={{ display: "flex", gap: 0, marginTop: 16, marginBottom: 16, borderRadius: 12, overflow: "hidden", border: "1px solid var(--ink-200)" }}>
+      <div style={{ display: "flex", gap: 0, marginTop: 18, marginBottom: 18, borderRadius: 14, overflow: "hidden",
+        background: "rgba(255,255,255,.10)", border: "1px solid rgba(255,255,255,.18)", position: "relative" }}>
         {parts.map((p, i) => (
-          <div key={p.label} style={{ flex: 1, padding: "9px 12px", borderInlineEnd: i < 2 ? "1px solid var(--ink-200)" : "none",
-            background: "var(--ink-50)" }}>
-            <div style={{ fontSize: 11, color: "var(--ink-500)" }}>{p.label}</div>
-            <div className="num" style={{ fontSize: 15, fontWeight: 700, color: "var(--ink-800)", marginTop: 1 }}>₪{fmt(p.val)}</div>
+          <div key={p.label} style={{ flex: 1, padding: "10px 12px", borderInlineEnd: i < 2 ? "1px solid rgba(255,255,255,.18)" : "none" }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.7)" }}>{p.label}</div>
+            <div className="num" style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginTop: 1 }}>₪{fmt(p.val)}</div>
           </div>
         ))}
       </div>
-      <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
-        <PillButton variant="primary" chevron onClick={onPay} style={{ flex: 1 }}>לתשלום</PillButton>
-        <PillButton variant="secondary" icon="sigma" onClick={() => window.muToast("נפתח סיכום כספי למשלם", "sigma")}>סיכום</PillButton>
+      <div style={{ display: "flex", gap: 8, marginTop: "auto", position: "relative" }}>
+        <PillButton variant="light" chevron onClick={onPay} style={{ flex: 1, background: "#fff", color: "var(--teal-700)", border: "none" }}>לתשלום</PillButton>
+        <PillButton variant="light" icon="sigma" onClick={() => window.muToast("נפתח סיכום כספי למשלם", "sigma")}>סיכום</PillButton>
       </div>
     </Card>
   );

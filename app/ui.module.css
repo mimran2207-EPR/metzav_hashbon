@@ -63,14 +63,14 @@
 /* ── Card ─────────────────────────────────────────────────────────── */
 .card {
   background: var(--white);
-  border: 1px solid var(--ink-200);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--ink-100);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(18,48,60,.04), 0 12px 30px rgba(18,48,60,.08);
   position: relative;
   overflow: hidden;
   transition: transform .16s ease, box-shadow .16s ease;
 }
-.cardHoverable:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.cardHoverable:hover { transform: translateY(-3px); box-shadow: 0 18px 44px rgba(18,48,60,.14); }
 
 /* ── Chip ─────────────────────────────────────────────────────────── */
 .chip {
@@ -94,7 +94,7 @@
   background: linear-gradient(135deg, var(--teal-400), var(--teal-600));
   display: grid; place-items: center; box-shadow: 0 3px 8px rgba(42,167,184,.32);
 }
-.sectionTitle { font-size: var(--text-xl); font-weight: 700; color: var(--teal-700); line-height: 1.2; }
+.sectionTitle { font-size: 20px; font-weight: 800; color: var(--teal-800); line-height: 1.2; letter-spacing: -.01em; }
 .sectionSub   { font-size: var(--text-xs); color: var(--ink-500); margin-top: var(--space-0_5); }
 
 /* ── Tip (CSS-only tooltip; shows on hover AND keyboard focus) ─────── */
