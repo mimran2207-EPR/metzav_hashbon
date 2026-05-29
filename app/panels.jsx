@@ -62,8 +62,8 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {actions.map(a => (
             <button key={a.id} data-focusring onClick={() => onAction(a)} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "10px 12px" }}>
-              <div style={{ width: 32, height: 32, borderRadius: 9, background: "var(--teal-50)", display: "grid", placeItems: "center", flex: "none" }}>
-                <Icon name={a.icon} size={17} color="var(--teal-600)"/>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", display: "grid", placeItems: "center", flex: "none", boxShadow: "0 3px 8px rgba(42,167,184,.3)" }}>
+                <Icon name={a.icon} size={17} color="#fff"/>
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-800)" }}>{a.label}</div>

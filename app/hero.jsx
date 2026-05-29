@@ -130,8 +130,9 @@ function AlertsCard({ notesCount, docsCount, onNotes, onDocs, onEnforce }) {
 
 function AIStrip({ insights, onCopilot }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "11px 16px", borderRadius: 14,
-      background: "linear-gradient(90deg,var(--teal-50),#F4FBFC 60%,#fff)", border: "1px solid var(--teal-100)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", borderRadius: 16,
+      background: "var(--white)", border: "1px solid var(--ink-100)",
+      boxShadow: "0 1px 2px rgba(18,48,60,.04), 0 12px 30px rgba(18,48,60,.08)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "none" }}>
         <div style={{ width: 30, height: 30, borderRadius: 9, background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))",
           display: "grid", placeItems: "center" }}>
@@ -191,8 +192,8 @@ function ActionBar({ notesCount, year, onYear, handlers }) {
   ];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: narrow ? "wrap" : "nowrap",
-      background: "var(--white)", border: "1px solid var(--ink-200)",
-      borderRadius: 14, boxShadow: "var(--shadow-card)", padding: "8px 12px",
+      background: "var(--white)", border: "1px solid var(--ink-100)",
+      borderRadius: 16, boxShadow: "0 1px 2px rgba(18,48,60,.04), 0 10px 26px rgba(18,48,60,.09)", padding: "8px 12px",
       position: narrow ? "static" : "sticky", top: 68, zIndex: 40, overflowX: narrow ? "visible" : "auto" }}>
       {groups.map((g, gi) => (
         <React.Fragment key={g.name}>

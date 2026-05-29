@@ -10,7 +10,7 @@ function EntityStrip({ entities, selected, onSelect }) {
     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
       <button data-focusring onClick={() => onSelect("all")} style={{ ...entityCardStyle(selected === "all"), minWidth: 150 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ ...entityIcon(selected === "all") }}><Icon name="wallet" size={18} color={selected === "all" ? "#fff" : "var(--teal-600)"}/></div>
+          <div style={{ ...entityIcon(selected === "all") }}><Icon name="wallet" size={18} color="#fff"/></div>
           <div style={{ textAlign: "start" }}>
             <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink-800)" }}>כל הישויות</div>
             <div style={{ fontSize: 11, color: "var(--ink-500)" }}>{entities.length} נושאים</div>
@@ -22,7 +22,7 @@ function EntityStrip({ entities, selected, onSelect }) {
         return (
           <button key={e.id} data-focusring onClick={() => onSelect(e.id)} style={entityCardStyle(active)}>
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div style={entityIcon(active)}><Icon name={subjIcon[e.subject] || "building"} size={18} color={active ? "#fff" : "var(--teal-600)"}/></div>
+              <div style={entityIcon(active)}><Icon name={subjIcon[e.subject] || "building"} size={18} color="#fff"/></div>
               <div style={{ textAlign: "start", minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink-800)", whiteSpace: "nowrap" }}>{e.title}</span>
@@ -49,8 +49,9 @@ function entityCardStyle(active) {
     boxShadow: active ? "0 0 0 4px rgba(42,167,184,.16), 0 4px 12px rgba(42,167,184,.18)" : "var(--shadow-card)" };
 }
 function entityIcon(active) {
-  return { width: 34, height: 34, borderRadius: 9, flex: "none", display: "grid", placeItems: "center",
-    background: active ? "var(--teal-500)" : "var(--teal-50)" };
+  return { width: 36, height: 36, borderRadius: 10, flex: "none", display: "grid", placeItems: "center",
+    background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))",
+    boxShadow: "0 3px 8px rgba(42,167,184,.30)" };
 }
 
 function BalancesTable({ services, totals, density, txns, txnTypes }) {
