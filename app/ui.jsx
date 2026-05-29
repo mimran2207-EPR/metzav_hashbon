@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Icon } from './icons.jsx';
-import { space, font, weight } from './tokens.js';
+import { space } from './tokens.js';
 import s from './ui.module.css';
 
 // useMediaQuery — SSR-safe responsive hook. Lets components react to viewport
@@ -43,14 +43,10 @@ function PillButton({ children, variant = "primary", size = "md", chevron = fals
 }
 
 function Card({ children, pad = space[5.5], style, hover, onClick, accent }) {
-  const [h, setH] = useState(false);
+  const className = [s.card, hover ? s.cardHoverable : null].filter(Boolean).join(" ");
   return (
-    <div onClick={onClick}
-      onMouseEnter={() => hover && setH(true)} onMouseLeave={() => hover && setH(false)}
-      style={{ background: "var(--white)", border: "1px solid var(--ink-200)", borderRadius: 16,
-        boxShadow: h ? "var(--shadow-md)" : "var(--shadow-card)", padding: pad,
-        transform: h ? "translateY(-2px)" : "none", transition: "all .16s ease",
-        cursor: onClick ? "pointer" : "default", position: "relative", overflow: "hidden",
+    <div onClick={onClick} className={className}
+      style={{ padding: pad, cursor: onClick ? "pointer" : "default",
         ...(accent ? { borderTop: `3px solid ${accent}` } : null), ...style }}>
       {children}
     </div>
@@ -58,17 +54,9 @@ function Card({ children, pad = space[5.5], style, hover, onClick, accent }) {
 }
 
 function Chip({ children, tone = "teal", style }) {
-  const tones = {
-    teal:  { bg: "var(--teal-50)",  fg: "var(--teal-700)" },
-    gray:  { bg: "var(--ink-100)",  fg: "var(--ink-600)" },
-    green: { bg: "#E7F6EE",         fg: "#1f8a52" },
-    amber: { bg: "#FDF3DE",         fg: "#9a6a10" },
-    red:   { bg: "#FBE9E9",         fg: "#b23636" },
-    blue:  { bg: "#E9F0FD",         fg: "#2456c0" },
-  }[tone];
+  const toneClass = { teal: s.chipTeal, gray: s.chipGray, green: s.chipGreen, amber: s.chipAmber, red: s.chipRed, blue: s.chipBlue };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: tones.bg, color: tones.fg,
-      fontSize: font.xs, fontWeight: weight.semibold, padding: "3px 10px", borderRadius: 999, lineHeight: 1.4, whiteSpace: "nowrap", ...style }}>
+    <span className={[s.chip, toneClass[tone] || s.chipTeal].join(" ")} style={style}>
       {children}
     </span>
   );
@@ -76,14 +64,12 @@ function Chip({ children, tone = "teal", style }) {
 
 function SectionHead({ title, sub, icon, right }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: space[3], marginBottom: space[3.5] }}>
-      <div style={{ display: "flex", alignItems: "center", gap: space[2.5] }}>
-        {icon && <div style={{ width: 30, height: 30, borderRadius: 9, background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))",
-          display: "grid", placeItems: "center", boxShadow: "0 3px 8px rgba(42,167,184,.32)" }}>
-          <Icon name={icon} size={17} color="#fff"/></div>}
+    <div className={s.sectionHead}>
+      <div className={s.sectionHeadLeft}>
+        {icon && <div className={s.sectionIcon}><Icon name={icon} size={17} color="#fff"/></div>}
         <div>
-          <div style={{ fontSize: font.xl, fontWeight: weight.bold, color: "var(--teal-700)", lineHeight: 1.2 }}>{title}</div>
-          {sub && <div style={{ fontSize: font.xs, color: "var(--ink-500)", marginTop: space[0.5] }}>{sub}</div>}
+          <div className={s.sectionTitle}>{title}</div>
+          {sub && <div className={s.sectionSub}>{sub}</div>}
         </div>
       </div>
       {right}
@@ -91,37 +77,29 @@ function SectionHead({ title, sub, icon, right }) {
   );
 }
 
+// Tip — CSS-only tooltip. Appears on hover AND keyboard focus (:focus-within),
+// so it no longer needs JS show/hide state.
 function Tip({ label, children, side = "bottom" }) {
-  const [show, setShow] = useState(false);
-  const pos = side === "bottom"
-    ? { top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" }
-    : { bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" };
   return (
-    <span style={{ position: "relative", display: "inline-flex" }}
-      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+    <span className={s.tipWrap}>
       {children}
-      {show && (
-        <span style={{ position: "absolute", ...pos, background: "var(--ink-900)", color: "#fff",
-          fontSize: font.xs, fontWeight: weight.medium, padding: "5px 9px", borderRadius: 7, whiteSpace: "nowrap",
-          zIndex: 200, pointerEvents: "none", boxShadow: "var(--shadow-md)", animation: "muFade .12s ease" }}>
-          {label}
-        </span>
-      )}
+      <span role="tooltip" className={[s.tip, side === "bottom" ? s.tipBottom : s.tipTop].join(" ")}>
+        {label}
+      </span>
     </span>
   );
 }
 
 function Segmented({ options, value, onChange, size = "md" }) {
+  const sizeClass = size === "sm" ? s.segSm : s.segMd;
   return (
-    <div style={{ display: "inline-flex", background: "var(--ink-100)", borderRadius: 999, padding: 3, gap: space[0.5] }}>
+    <div className={s.segmented}>
       {options.map(o => {
         const active = o.value === value;
         return (
           <button key={o.value} data-focusring onClick={() => onChange(o.value)}
-            style={{ border: "none", cursor: "pointer", borderRadius: 999, fontFamily: "var(--font)",
-              fontSize: size === "sm" ? font.sm : font.base, fontWeight: weight.semibold, padding: size === "sm" ? "5px 14px" : "7px 18px",
-              background: active ? "var(--white)" : "transparent", color: active ? "var(--teal-600)" : "var(--ink-600)",
-              boxShadow: active ? "var(--shadow-card)" : "none", transition: "all .15s ease" }}>
+            aria-pressed={active}
+            className={[s.segBtn, sizeClass, active ? s.segActive : null].filter(Boolean).join(" ")}>
             {o.label}
           </button>
         );
@@ -143,17 +121,14 @@ function ToastHost() {
   }, []);
   const dot = { default: "var(--teal-500)", success: "var(--green)", error: "var(--red)", warn: "var(--amber)" };
   return (
-    <div role="status" aria-live="polite" style={{ position: "fixed", bottom: space[6], left: space[6], zIndex: 9000, display: "flex", flexDirection: "column", gap: space[2.5] }}>
+    <div role="status" aria-live="polite" className={s.toastHost}>
       {items.map(i => (
-        <div key={i.id} className="mu-rise" style={{ display: "flex", alignItems: "center", gap: space[2.5],
-          background: "var(--ink-900)", color: "#fff", padding: "11px 12px 11px 16px", borderRadius: 12,
-          boxShadow: "var(--shadow-lg)", fontSize: font.base, fontWeight: weight.medium, maxWidth: 380 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 999, background: dot[i.tone] || dot.default, display: "grid", placeItems: "center", flex: "none" }}>
+        <div key={i.id} className={`${s.toast} mu-rise`}>
+          <div className={s.toastDot} style={{ background: dot[i.tone] || dot.default }}>
             <Icon name={i.icon} size={14} color="#fff" stroke={2.4}/>
           </div>
-          <span style={{ flex: 1 }}>{i.text}</span>
-          <button data-focusring aria-label="סגירה" onClick={() => remove(i.id)}
-            style={{ border: "none", background: "transparent", color: "rgba(255,255,255,.6)", cursor: "pointer", display: "grid", placeItems: "center", padding: 2, flex: "none" }}>
+          <span className={s.toastText}>{i.text}</span>
+          <button data-focusring aria-label="סגירה" className={s.toastClose} onClick={() => remove(i.id)}>
             <Icon name="close" size={15} color="currentColor"/>
           </button>
         </div>
@@ -178,27 +153,22 @@ function Sheet({ open, onClose, title, sub, width = 420, children, footer, side 
     };
   }, [open, onClose]);
   if (!open) return null;
-  const edge = side === "start" ? { insetInlineStart: 0 } : { insetInlineEnd: 0 };
-  const anim = side === "start" ? "muSlideL" : "muSlideR";
+  const sideClass = side === "start" ? s.panelStart : s.panelEnd;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,38,50,.32)", zIndex: 5000, animation: "muFade .15s ease" }}>
+    <div onClick={onClose} className={s.overlay}>
       <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title}
-        onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 0, bottom: 0, ...edge, width, maxWidth: "92vw",
-        background: "var(--white)", boxShadow: "var(--shadow-lg)", display: "flex", flexDirection: "column", outline: "none",
-        animation: `${anim} .26s cubic-bezier(.22,1,.36,1)` }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: space[3],
-          padding: "20px 22px 16px", borderBottom: "1px solid var(--ink-200)" }}>
+        onClick={e => e.stopPropagation()} className={[s.panel, sideClass].join(" ")} style={{ width }}>
+        <div className={s.sheetHeader}>
           <div>
-            <div style={{ fontSize: font['2xl'], fontWeight: weight.bold, color: "var(--teal-700)" }}>{title}</div>
-            {sub && <div style={{ fontSize: font.sm, color: "var(--ink-500)", marginTop: 3 }}>{sub}</div>}
+            <div className={s.sheetTitle}>{title}</div>
+            {sub && <div className={s.sheetSub}>{sub}</div>}
           </div>
-          <button data-focusring onClick={onClose} style={{ border: "none", background: "var(--ink-100)", width: 34, height: 34,
-            borderRadius: 9, cursor: "pointer", display: "grid", placeItems: "center", flex: "none" }}>
+          <button data-focusring aria-label="סגירה" className={s.sheetClose} onClick={onClose}>
             <Icon name="close" size={18} color="var(--ink-600)"/>
           </button>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "18px 22px" }}>{children}</div>
-        {footer && <div style={{ borderTop: "1px solid var(--ink-200)", padding: "14px 22px" }}>{footer}</div>}
+        <div className={s.sheetBody}>{children}</div>
+        {footer && <div className={s.sheetFooter}>{footer}</div>}
       </div>
     </div>
   );
