@@ -59,8 +59,8 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
   const cols = ["סוג שירות", "נומינלי (קרן)", "הצמדה", "ריבית", "יתרה", ""];
   const colAlign = ["start", "end", "end", "end", "end", "center"];
   return (
-    <div style={{ overflow: "hidden", borderRadius: 12, border: "1px solid var(--ink-200)" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+    <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--ink-200)" }}>
+      <table style={{ width: "100%", minWidth: 560, borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ background: "var(--ink-50)" }}>
             {cols.map((c, i) => (
@@ -76,8 +76,11 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
             const rows = txns[s.id] || [];
             return (
               <React.Fragment key={s.id}>
-                <tr onClick={() => setOpen(isOpen ? null : s.id)} style={{ cursor: "pointer", background: isOpen ? "var(--teal-50)" : "#fff",
-                  transition: "background .12s ease" }}
+                <tr data-focusring role="button" tabIndex={0} aria-expanded={isOpen}
+                  aria-label={`${s.name} — יתרה ₪${fmt(s.balance)}. הקש להצגת תנועות`}
+                  onClick={() => setOpen(isOpen ? null : s.id)}
+                  onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(isOpen ? null : s.id); } }}
+                  style={{ cursor: "pointer", background: isOpen ? "var(--teal-50)" : "#fff", transition: "background .12s ease" }}
                   onMouseEnter={e => { if (!isOpen) e.currentTarget.style.background = "var(--ink-50)"; }}
                   onMouseLeave={e => { if (!isOpen) e.currentTarget.style.background = "#fff"; }}>
                   <td style={{ padding: cellPad, borderBottom: "1px solid var(--ink-100)" }}>

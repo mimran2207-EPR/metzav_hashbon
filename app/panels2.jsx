@@ -2,11 +2,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from './icons.jsx';
 import { Sheet, PillButton, Chip } from './ui.jsx';
-import { fmt } from './data.jsx';
+import { fmt, PAYER } from './data.jsx';
 
 function CopilotPanel({ open, onClose }) {
   const [msgs, setMsgs] = useState([
-    { who: "ai", text: "שלום שמעון. אני כאן כדי לעזור עם תיק המשלם יהודה מימראן. אפשר לשאול אותי כל דבר על החוב, או לבחור הצעה למטה.", cites: [] },
+    { who: "ai", text: `שלום שמעון. אני כאן כדי לעזור עם תיק המשלם ${PAYER.name}. אפשר לשאול אותי כל דבר על החוב, או לבחור הצעה למטה.`, cites: [] },
   ]);
   const [typing, setTyping] = useState(false);
   const [input, setInput] = useState("");
@@ -43,7 +43,7 @@ function CopilotPanel({ open, onClose }) {
   };
 
   return (
-    <Sheet open={open} onClose={onClose} side="start" width={440} title="AI Copilot" sub="עוזר הגבייה · מימראן יהודה"
+    <Sheet open={open} onClose={onClose} side="start" width={440} title="AI Copilot" sub={`עוזר הגבייה · ${PAYER.name}`}
       footer={
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, background: "var(--ink-50)", border: "1px solid var(--ink-200)", borderRadius: 999, padding: "6px 14px" }}>
@@ -108,7 +108,7 @@ function CopilotPanel({ open, onClose }) {
 function NotesDrawer({ open, onClose, notes, onAdd }) {
   const [draft, setDraft] = useState("");
   return (
-    <Sheet open={open} onClose={onClose} side="end" width={420} title={`הערות (${notes.length})`} sub="מימראן יהודה · 999-DEMO"
+    <Sheet open={open} onClose={onClose} side="end" width={420} title={`הערות (${notes.length})`} sub={`${PAYER.name} · ${PAYER.payerNo}`}
       footer={
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <textarea value={draft} onChange={e => setDraft(e.target.value)} placeholder="הוסף הערה חדשה…" rows={2}
@@ -168,24 +168,36 @@ function DocsDrawer({ open, onClose, docs }) {
   );
 }
 
+// Hoisted out of the component: defining Field inline re-created the component
+// type on every render, remounting the inputs and dropping focus mid-typing.
+const CalcField = ({ label, children }) => (
+  <div><div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 500, marginBottom: 5 }}>{label}</div>{children}</div>
+);
+const calcInputStyle = { width: "100%", boxSizing: "border-box", height: 42, border: "1px solid var(--ink-300)", borderRadius: 10,
+  padding: "0 12px", fontFamily: "var(--font)", fontSize: 15, color: "var(--ink-800)", outline: "none" };
+// Demo-only indexation rate. NOTE: in production, interest + indexation must come
+// from the authoritative back-end engine — not a hard-coded client constant.
+const CALC_INDEXATION_ANNUAL_RATE = 0.015;
+
 function InterestCalc({ open, onClose, baseNominal }) {
   const [principal, setPrincipal] = useState(baseNominal);
   const [rate, setRate] = useState(4.0);
   const [months, setMonths] = useState(6);
   useEffect(() => { if (open) setPrincipal(baseNominal); }, [open, baseNominal]);
-  const indexation = Math.round(principal * 0.012 * (months / 12) * 100) / 100 * 100;
-  const idx = Math.round(principal * 0.015 * (months / 12));
+  // a11y: close on Escape (overlay click already closes).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+  const idx = Math.round(principal * CALC_INDEXATION_ANNUAL_RATE * (months / 12));
   const interest = Math.round(principal * (rate / 100) * (months / 12));
   const total = principal + idx + interest;
   if (!open) return null;
-  const Field = ({ label, children }) => (
-    <div><div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 500, marginBottom: 5 }}>{label}</div>{children}</div>
-  );
-  const inp = { width: "100%", boxSizing: "border-box", height: 42, border: "1px solid var(--ink-300)", borderRadius: 10,
-    padding: "0 12px", fontFamily: "var(--font)", fontSize: 15, color: "var(--ink-800)", outline: "none" };
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,38,50,.4)", zIndex: 6000, display: "grid", placeItems: "center", animation: "muFade .14s ease" }}>
-      <div onClick={e => e.stopPropagation()} className="mu-rise" style={{ width: 460, maxWidth: "92vw", background: "#fff", borderRadius: 16, boxShadow: "var(--shadow-lg)", overflow: "hidden" }}>
+      <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="מחשבון ריבית והצמדה" className="mu-rise" style={{ width: 460, maxWidth: "92vw", background: "#fff", borderRadius: 16, boxShadow: "var(--shadow-lg)", overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid var(--ink-200)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 32, height: 32, borderRadius: 9, background: "var(--teal-50)", display: "grid", placeItems: "center" }}><Icon name="calc" size={18} color="var(--teal-600)"/></div>
@@ -194,10 +206,10 @@ function InterestCalc({ open, onClose, baseNominal }) {
           <button data-focusring onClick={onClose} style={{ border: "none", background: "var(--ink-100)", width: 32, height: 32, borderRadius: 9, cursor: "pointer", display: "grid", placeItems: "center" }}><Icon name="close" size={17} color="var(--ink-600)"/></button>
         </div>
         <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-          <Field label="קרן נומינלית (₪)"><input type="number" className="num" value={principal} onChange={e => setPrincipal(+e.target.value || 0)} style={inp}/></Field>
+          <CalcField label="קרן נומינלית (₪)"><input type="number" className="num" value={principal} onChange={e => setPrincipal(+e.target.value || 0)} style={calcInputStyle}/></CalcField>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="ריבית שנתית (%)"><input type="number" step="0.1" className="num" value={rate} onChange={e => setRate(+e.target.value || 0)} style={inp}/></Field>
-            <Field label="תקופה (חודשים)"><input type="number" className="num" value={months} onChange={e => setMonths(+e.target.value || 0)} style={inp}/></Field>
+            <CalcField label="ריבית שנתית (%)"><input type="number" step="0.1" className="num" value={rate} onChange={e => setRate(+e.target.value || 0)} style={calcInputStyle}/></CalcField>
+            <CalcField label="תקופה (חודשים)"><input type="number" className="num" value={months} onChange={e => setMonths(+e.target.value || 0)} style={calcInputStyle}/></CalcField>
           </div>
           <div style={{ background: "var(--ink-50)", border: "1px solid var(--ink-200)", borderRadius: 12, padding: 16, marginTop: 2 }}>
             {[["קרן", principal], ["הצמדה", idx], ["ריבית", interest]].map(([l, v]) => (

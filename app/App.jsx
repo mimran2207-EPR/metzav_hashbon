@@ -6,7 +6,7 @@ import { EntityStrip, BalancesTable } from './content.jsx';
 import { LeftColumn, CommandBar } from './panels.jsx';
 import { CopilotPanel, NotesDrawer, DocsDrawer, InterestCalc } from './panels2.jsx';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakToggle } from './tweaks-panel.jsx';
-import { SectionHead, Card, Segmented, ToastHost } from './ui.jsx';
+import { SectionHead, Card, Segmented, ToastHost, useMediaQuery } from './ui.jsx';
 import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, ENTITIES, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -18,6 +18,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const narrow = useMediaQuery("(max-width: 900px)"); // tablet / mobile breakpoint
   const [year, setYear] = useState(2026);
   const [entity, setEntity] = useState("all");
   const [density, setDensity] = useState(t.density);
@@ -37,12 +38,13 @@ function App() {
   const [calcOpen, setCalcOpen] = useState(false);
 
   // ⌘K / Ctrl+K + shortcuts
+  // NOTE: we intentionally do NOT hijack Ctrl/⌘+P — overriding the browser's
+  // native print is hostile to users (and screen-reader / a11y workflows).
   useEffect(() => {
     const onKey = (e) => {
       const k = e.key.toLowerCase();
       if ((e.metaKey || e.ctrlKey) && k === "k") { e.preventDefault(); setCmdOpen(o => !o); }
       else if ((e.metaKey || e.ctrlKey) && k === "j") { e.preventDefault(); setCopilot(o => !o); }
-      else if ((e.metaKey || e.ctrlKey) && k === "p") { e.preventDefault(); window.muToast("מכין הדפסת מצב חשבון…", "print"); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -94,7 +96,7 @@ function App() {
       {/* hero atmosphere wash */}
       <div style={{ background: "var(--wash-hero)", borderBottom: "1px solid var(--ink-100)" }}>
         <div style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 24px 22px" }}>
-          <HeroZone p={PAYER} totals={TOTALS} year={year} notesCount={notes.length} docsCount={DOCUMENTS.length} insights={AI_INSIGHTS} handlers={handlers} showStrip={ai !== "subtle"}/>
+          <HeroZone p={PAYER} totals={totals} year={year} notesCount={notes.length} docsCount={DOCUMENTS.length} insights={AI_INSIGHTS} handlers={handlers} showStrip={ai !== "subtle"} narrow={narrow}/>
         </div>
       </div>
 
@@ -104,7 +106,7 @@ function App() {
 
       {/* main two-column */}
       <main style={{ flex: 1, maxWidth: 1360, margin: "0 auto", width: "100%", padding: "18px 24px 0", boxSizing: "border-box" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 340px", gap: 18, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(0,1fr) 340px", gap: 18, alignItems: "start" }}>
           {/* right (data) column */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>

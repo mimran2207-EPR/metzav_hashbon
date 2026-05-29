@@ -1,6 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Icon } from './icons.jsx';
 
+// useMediaQuery — SSR-safe responsive hook. Lets components react to viewport
+// breakpoints without hand-rolling resize listeners or relying on CSS classes
+// (which inline styles can't easily target).
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(
+    () => typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(query).matches : false
+  );
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mql = window.matchMedia(query);
+    const onChange = () => setMatches(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, [query]);
+  return matches;
+}
+
 function PillButton({ children, variant = "primary", size = "md", chevron = false, icon, onClick, style, title }) {
   const [hover, setHover] = useState(false);
   const pads = { sm: "7px 16px", md: "10px 22px", lg: "12px 28px" };
@@ -139,13 +158,28 @@ function ToastHost() {
 }
 
 function Sheet({ open, onClose, title, sub, width = 420, children, footer, side = "start" }) {
+  const panelRef = useRef(null);
+  // a11y: close on Escape, move focus into the sheet on open, restore it on close.
+  useEffect(() => {
+    if (!open) return;
+    const prevFocus = document.activeElement;
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const id = requestAnimationFrame(() => panelRef.current && panelRef.current.focus());
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      cancelAnimationFrame(id);
+      if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
+    };
+  }, [open, onClose]);
   if (!open) return null;
   const edge = side === "start" ? { insetInlineStart: 0 } : { insetInlineEnd: 0 };
   const anim = side === "start" ? "muSlideL" : "muSlideR";
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,38,50,.32)", zIndex: 5000, animation: "muFade .15s ease" }}>
-      <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 0, bottom: 0, ...edge, width, maxWidth: "92vw",
-        background: "var(--white)", boxShadow: "var(--shadow-lg)", display: "flex", flexDirection: "column",
+      <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title}
+        onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 0, bottom: 0, ...edge, width, maxWidth: "92vw",
+        background: "var(--white)", boxShadow: "var(--shadow-lg)", display: "flex", flexDirection: "column", outline: "none",
         animation: `${anim} .26s cubic-bezier(.22,1,.36,1)` }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12,
           padding: "20px 22px 16px", borderBottom: "1px solid var(--ink-200)" }}>
@@ -165,4 +199,4 @@ function Sheet({ open, onClose, title, sub, width = 420, children, footer, side 
   );
 }
 
-export { PillButton, Card, Chip, SectionHead, Tip, Segmented, ToastHost, Sheet };
+export { PillButton, Card, Chip, SectionHead, Tip, Segmented, ToastHost, Sheet, useMediaQuery };

@@ -129,13 +129,9 @@ const DOCUMENTS = [
   { id: 4, name: "צילום ת.ז.", type: "JPG", date: "08/03/2024", size: "1.2MB" },
 ];
 
-function nis(n, withSign = true) {
-  const v = Math.abs(Math.round(n)).toLocaleString("en-US");
-  return (withSign ? "₪" : "") + v;
-}
 function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
 
 export {
   PAYER, ENTITIES, SERVICES, TOTALS, TXNS, TXN_TYPES, YEARS,
-  AI_INSIGHTS, AI_ACTIONS, QUICK_ACTIONS, NOTES, DOCUMENTS, nis, fmt,
+  AI_INSIGHTS, AI_ACTIONS, QUICK_ACTIONS, NOTES, DOCUMENTS, fmt,
 };

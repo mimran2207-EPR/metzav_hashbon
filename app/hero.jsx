@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Icon } from './icons.jsx';
-import { Card, Chip, PillButton } from './ui.jsx';
+import { Card, Chip, PillButton, useMediaQuery } from './ui.jsx';
 import { YEARS, fmt } from './data.jsx';
 
 function fieldRow(label, value, mono) {
@@ -152,10 +152,10 @@ function AIStrip({ insights, onCopilot }) {
   );
 }
 
-function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, showStrip = true }) {
+function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, showStrip = true, narrow = false }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1.45fr 1fr 1fr", gap: 14, alignItems: "stretch" }}>
+      <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "1.45fr 1fr 1fr", gap: 14, alignItems: "stretch" }}>
         <IdentityCard p={p}/>
         <BalanceCard totals={totals} year={year} onPay={handlers.onPay}/>
         <AlertsCard notesCount={notesCount} docsCount={docsCount} onNotes={handlers.onNotes} onDocs={handlers.onDocs} onEnforce={handlers.onEnforce}/>
@@ -167,6 +167,7 @@ function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, 
 
 function ActionBar({ notesCount, year, onYear, handlers }) {
   const [yearOpen, setYearOpen] = useState(false);
+  const narrow = useMediaQuery("(max-width: 900px)");
   const groups = [
     { name: "תקשורת", items: [
       { id: "notes", icon: "notes", label: "הערות", badge: notesCount, onClick: handlers.onNotes },
@@ -184,8 +185,10 @@ function ActionBar({ notesCount, year, onYear, handlers }) {
     ]},
   ];
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--white)", border: "1px solid var(--ink-200)",
-      borderRadius: 14, boxShadow: "var(--shadow-card)", padding: "8px 12px", position: "sticky", top: 68, zIndex: 40 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: narrow ? "wrap" : "nowrap",
+      background: "var(--white)", border: "1px solid var(--ink-200)",
+      borderRadius: 14, boxShadow: "var(--shadow-card)", padding: "8px 12px",
+      position: narrow ? "static" : "sticky", top: 68, zIndex: 40, overflowX: narrow ? "visible" : "auto" }}>
       {groups.map((g, gi) => (
         <React.Fragment key={g.name}>
           {gi > 0 && <div style={{ width: 1, height: 30, background: "var(--ink-200)", margin: "0 4px" }}/>}

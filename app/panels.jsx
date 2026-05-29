@@ -135,7 +135,7 @@ function CommandBar({ open, onClose, onRun }) {
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,38,50,.4)", zIndex: 6000,
       display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "11vh", animation: "muFade .14s ease" }}>
-      <div onClick={e => e.stopPropagation()} className="mu-rise" style={{ width: 620, maxWidth: "92vw", background: "#fff",
+      <div onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="חיפוש ופקודות" className="mu-rise" style={{ width: 620, maxWidth: "92vw", background: "#fff",
         borderRadius: 16, boxShadow: "var(--shadow-lg)", overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 18px", borderBottom: "1px solid var(--ink-200)" }}>
           <Icon name="search" size={20} color="var(--teal-500)"/>
