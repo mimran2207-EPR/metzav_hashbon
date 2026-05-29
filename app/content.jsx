@@ -4,35 +4,36 @@ import { Chip, Segmented } from './ui.jsx';
 import { fmt } from './data.jsx';
 import s from './ui.module.css';
 
-function EntityStrip({ entities, selected, onSelect }) {
-  const subjIcon = { 3: "building", 13: "droplet", 15: "receipt", 1: "user" };
+// SubjectStrip — the payer's subjects ("נושאים") as icon cards. Each card shows
+// the subject name + a count whose unit is subject-specific (properties /
+// children / reports / signs), and the open balance. Selecting filters the table.
+function SubjectStrip({ subjects, selected, onSelect }) {
   return (
     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
       <button data-focusring onClick={() => onSelect("all")} style={{ ...entityCardStyle(selected === "all"), minWidth: 150 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ ...entityIcon(selected === "all") }}><Icon name="wallet" size={18} color="#fff"/></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={entityIcon(selected === "all")}><Icon name="wallet" size={18} color="#fff"/></div>
           <div style={{ textAlign: "start" }}>
-            <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink-800)" }}>כל הישויות</div>
-            <div style={{ fontSize: 11, color: "var(--ink-500)" }}>{entities.length} נושאים</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>כל הנושאים</div>
+            <div style={{ fontSize: 11, color: "var(--ink-500)" }}><span className="num">{subjects.length}</span> נושאים פעילים</div>
           </div>
         </div>
       </button>
-      {entities.map(e => {
-        const active = selected === e.id;
+      {subjects.map(sub => {
+        const active = selected === sub.id;
+        const paid = (sub.balance || 0) <= 0;
         return (
-          <button key={e.id} data-focusring onClick={() => onSelect(e.id)} style={entityCardStyle(active)}>
-            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div style={entityIcon(active)}><Icon name={subjIcon[e.subject] || "building"} size={18} color="#fff"/></div>
-              <div style={{ textAlign: "start", minWidth: 0 }}>
+          <button key={sub.id} data-focusring onClick={() => onSelect(sub.id)} style={{ ...entityCardStyle(active), minWidth: 172 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
+              <div style={entityIcon(active)}><Icon name={sub.icon} size={19} color="#fff"/></div>
+              <div style={{ textAlign: "start", minWidth: 0, flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink-800)", whiteSpace: "nowrap" }}>{e.title}</span>
-                  <Chip tone="gray" style={{ fontSize: 10 }}>נושא {e.subject}</Chip>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)", whiteSpace: "nowrap" }}>{sub.name}</span>
+                  <Chip tone="teal" style={{ fontSize: 10 }}><span className="num">{sub.count}</span> {sub.unit}</Chip>
                 </div>
-                <div style={{ fontSize: 11, color: "var(--ink-500)", display: "flex", gap: 7, marginTop: 1 }}>
-                  <span className="num">פיזי {e.id}</span>
-                  <span className="num" style={{ color: e.balance > 0 ? "var(--ink-700)" : "var(--green)", fontWeight: 600 }}>
-                    {e.balance > 0 ? `₪${fmt(e.balance)}` : "0 ✓"}
-                  </span>
+                <div className="num" style={{ fontSize: 11.5, marginTop: 2, fontWeight: 600,
+                  color: paid ? "var(--green)" : "var(--ink-700)" }}>
+                  {paid ? "0 ✓ ללא חוב" : `₪${fmt(sub.balance)}`}
                 </div>
               </div>
             </div>
@@ -73,6 +74,11 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
           </tr>
         </thead>
         <tbody>
+          {services.length === 0 && (
+            <tr><td colSpan={6} style={{ padding: "30px 14px", textAlign: "center", color: "var(--ink-400)", fontSize: 13.5 }}>
+              אין יתרות חוב פתוחות לנושא זה
+            </td></tr>
+          )}
           {services.map(svc => {
             const isOpen = open === svc.id;
             const rows = txns[svc.id] || [];
@@ -193,4 +199,4 @@ function TxnTable({ rows, types, compact }) {
   );
 }
 
-export { EntityStrip, BalancesTable, TxnTable };
+export { SubjectStrip, BalancesTable, TxnTable };

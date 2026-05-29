@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { TopBar, FooterBand } from './chrome.jsx';
 import { HeroZone, ActionBar } from './hero.jsx';
-import { EntityStrip, BalancesTable } from './content.jsx';
+import { SubjectStrip, BalancesTable } from './content.jsx';
 import { LeftColumn, CommandBar } from './panels.jsx';
 import { CopilotPanel, NotesDrawer, DocsDrawer, InterestCalc } from './panels2.jsx';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakToggle } from './tweaks-panel.jsx';
 import { SectionHead, Card, Segmented, ToastHost, useMediaQuery } from './ui.jsx';
-import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, ENTITIES, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
+import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, SUBJECTS, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accent": "#2AA7B8",
@@ -50,7 +50,8 @@ function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const services = entity === "all" ? SERVICES : SERVICES.filter(s => s.entity === entity);
+  const services = entity === "all" ? SERVICES : SERVICES.filter(s => s.subject === entity);
+  const activeSubject = SUBJECTS.find(s => s.id === entity);
   const totals = {
     nominal: services.reduce((a, s) => a + s.nominal, 0),
     indexation: services.reduce((a, s) => a + s.indexation, 0),
@@ -110,13 +111,13 @@ function App() {
           {/* right (data) column */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <SectionHead title="ישויות ונושאים" sub="בחר ישות לסינון היתרות והתנועות"/>
-              <EntityStrip entities={ENTITIES} selected={entity} onSelect={setEntity}/>
+              <SectionHead title="ישויות ונושאים" sub={`מס׳ משלם ${PAYER.payerNo} · ת.ז ${PAYER.taz}`}/>
+              <SubjectStrip subjects={SUBJECTS} selected={entity} onSelect={setEntity}/>
             </div>
             <Card pad={0} style={{ overflow: "visible" }}>
               <div style={{ padding: "18px 20px 0" }}>
                 <SectionHead title="יתרות לפי סוג שירות" icon="sigma"
-                  sub={entity === "all" ? "כל הישויות · לחץ שורה לפירוט תנועות" : `ישות ${entity} · לחץ שורה לפירוט`}
+                  sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות" : `נושא: ${activeSubject ? activeSubject.name : entity} · לחץ שורה לפירוט`}
                   right={
                     <Segmented size="sm" value={density} onChange={setDensity}
                       options={[{ value: "comfortable", label: "מרווח" }, { value: "compact", label: "צפוף" }]}/>
