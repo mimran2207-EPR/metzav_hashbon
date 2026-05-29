@@ -59,7 +59,9 @@ function BalanceCard({ totals, year, onPay }) {
         <Chip tone="gray"><Icon name="calendar" size={13} color="var(--ink-500)"/> שנת {year}</Chip>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
-        <span className="num" style={{ fontSize: 42, fontWeight: 700, color: "var(--ink-900)", letterSpacing: "-.02em", lineHeight: 1 }}>
+        <span className="num" style={{ fontSize: 42, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1,
+          background: "linear-gradient(135deg,var(--teal-600) 0%,var(--teal-800) 100%)",
+          WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "var(--teal-700)" }}>
           ₪{fmt(totals.balance)}
         </span>
         <Chip tone="red" style={{ alignSelf: "center" }}>חובה</Chip>
@@ -154,7 +156,7 @@ function AIStrip({ insights, onCopilot }) {
 
 function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, showStrip = true, narrow = false }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <div className="mu-rise" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "1.45fr 1fr 1fr", gap: 14, alignItems: "stretch" }}>
         <IdentityCard p={p}/>
         <BalanceCard totals={totals} year={year} onPay={handlers.onPay}/>

@@ -26,7 +26,8 @@ function PillButton({ children, variant = "primary", size = "md", chevron = fals
   const pads = { sm: "7px 16px", md: "10px 22px", lg: "12px 28px" };
   const fss = { sm: font.sm, md: font.base, lg: font.lg };
   const variants = {
-    primary:   { background: hover ? "var(--teal-400)" : "var(--teal-500)", color: "#fff", border: "1.5px solid transparent" },
+    primary:   { background: "linear-gradient(135deg,var(--teal-500),var(--teal-700))", color: "#fff", border: "1.5px solid transparent",
+                 boxShadow: hover ? "0 8px 20px rgba(42,167,184,.45)" : "0 4px 12px rgba(42,167,184,.32)" },
     secondary: { background: hover ? "var(--teal-50)" : "transparent", color: "var(--teal-600)", border: "1.5px solid var(--teal-500)" },
     ghost:     { background: hover ? "var(--ink-100)" : "transparent", color: "var(--ink-700)", border: "1.5px solid transparent" },
     light:     { background: hover ? "#fff" : "rgba(255,255,255,.14)", color: "#fff", border: "1.5px solid rgba(255,255,255,.5)" },
@@ -37,7 +38,8 @@ function PillButton({ children, variant = "primary", size = "md", chevron = fals
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: space[2],
         fontFamily: "var(--font)", fontWeight: weight.semibold, fontSize: fss[size], padding: pads[size],
-        borderRadius: 999, cursor: "pointer", transition: "all .15s ease", whiteSpace: "nowrap",
+        borderRadius: 999, cursor: "pointer", transition: "transform .15s ease, box-shadow .15s ease, background .15s ease", whiteSpace: "nowrap",
+        transform: hover ? "translateY(-1px)" : "none",
         ...variants[variant], ...style }}>
       {chevron && <span style={{ fontSize: font.xl, lineHeight: 1, marginInlineEnd: -2 }}>‹</span>}
       {icon && <Icon name={icon} size={size === "sm" ? 16 : 18} color="currentColor" stroke={1.9}/>}
@@ -82,8 +84,9 @@ function SectionHead({ title, sub, icon, right }) {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: space[3], marginBottom: space[3.5] }}>
       <div style={{ display: "flex", alignItems: "center", gap: space[2.5] }}>
-        {icon && <div style={{ width: 30, height: 30, borderRadius: 8, background: "var(--teal-50)", display: "grid", placeItems: "center" }}>
-          <Icon name={icon} size={17} color="var(--teal-600)"/></div>}
+        {icon && <div style={{ width: 30, height: 30, borderRadius: 9, background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))",
+          display: "grid", placeItems: "center", boxShadow: "0 3px 8px rgba(42,167,184,.32)" }}>
+          <Icon name={icon} size={17} color="#fff"/></div>}
         <div>
           <div style={{ fontSize: font.xl, fontWeight: weight.bold, color: "var(--teal-700)", lineHeight: 1.2 }}>{title}</div>
           {sub && <div style={{ fontSize: font.xs, color: "var(--ink-500)", marginTop: space[0.5] }}>{sub}</div>}

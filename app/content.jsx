@@ -112,13 +112,13 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
           })}
         </tbody>
         <tfoot>
-          <tr style={{ background: "var(--teal-700)" }}>
-            <td style={{ padding: "13px 14px", color: "#fff", fontWeight: 700, fontSize: 14.5 }}>סך הכל למשלם</td>
+          <tr style={{ background: "linear-gradient(135deg,var(--teal-600) 0%,var(--teal-800) 100%)" }}>
+            <td style={{ padding: "14px 14px", color: "#fff", fontWeight: 700, fontSize: 15 }}>סך הכל למשלם</td>
             <td className="num" style={{ ...footCell }}>₪{fmt(totals.nominal)}</td>
             <td className="num" style={{ ...footCell }}>₪{fmt(totals.indexation)}</td>
             <td className="num" style={{ ...footCell }}>₪{fmt(totals.interest)}</td>
-            <td className="num" style={{ ...footCell, fontSize: 16, fontWeight: 700 }}>₪{fmt(totals.balance)}</td>
-            <td style={{ background: "var(--teal-700)" }}/>
+            <td className="num" style={{ ...footCell, fontSize: 17, fontWeight: 800 }}>₪{fmt(totals.balance)}</td>
+            <td/>
           </tr>
         </tfoot>
       </table>
