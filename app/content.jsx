@@ -45,8 +45,8 @@ function EntityStrip({ entities, selected, onSelect }) {
 function entityCardStyle(active) {
   return { display: "flex", alignItems: "center", cursor: "pointer", textAlign: "start",
     background: active ? "var(--teal-50)" : "var(--white)", border: `1.5px solid ${active ? "var(--teal-500)" : "var(--ink-200)"}`,
-    borderRadius: 13, padding: "11px 14px", transition: "all .14s ease", fontFamily: "var(--font)",
-    boxShadow: active ? "none" : "var(--shadow-card)" };
+    borderRadius: 14, padding: "11px 14px", transition: "all .14s ease", fontFamily: "var(--font)",
+    boxShadow: active ? "0 0 0 4px rgba(42,167,184,.16), 0 4px 12px rgba(42,167,184,.18)" : "var(--shadow-card)" };
 }
 function entityIcon(active) {
   return { width: 34, height: 34, borderRadius: 9, flex: "none", display: "grid", placeItems: "center",
@@ -63,10 +63,10 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
     <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--ink-200)" }}>
       <table style={{ width: "100%", minWidth: 560, borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
-          <tr style={{ background: "var(--ink-50)" }}>
+          <tr style={{ background: "linear-gradient(135deg,var(--teal-700) 0%,var(--teal-800) 100%)" }}>
             {cols.map((c, i) => (
-              <th key={i} style={{ textAlign: colAlign[i], padding: "10px 14px", fontSize: 11.5, fontWeight: 600,
-                color: "var(--ink-500)", borderBottom: "1px solid var(--ink-200)", whiteSpace: "nowrap",
+              <th key={i} style={{ textAlign: colAlign[i], padding: "12px 14px", fontSize: 12, fontWeight: 700,
+                color: "rgba(255,255,255,.9)", letterSpacing: ".01em", whiteSpace: "nowrap",
                 width: i === 0 ? "auto" : i === 5 ? 44 : 110 }}>{c}</th>
             ))}
           </tr>
