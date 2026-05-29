@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { TopBar, FooterBand } from './chrome.jsx';
 import { HeroZone, ActionBar } from './hero.jsx';
-import { SubjectStrip, BalancesTable } from './content.jsx';
+import { SubjectStrip, SubjectDrillDown, BalancesTable } from './content.jsx';
 import { LeftColumn, CommandBar } from './panels.jsx';
 import { CopilotPanel, NotesDrawer, DocsDrawer, InterestCalc } from './panels2.jsx';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakToggle } from './tweaks-panel.jsx';
@@ -20,8 +20,12 @@ function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const narrow = useMediaQuery("(max-width: 900px)"); // tablet / mobile breakpoint
   const [year, setYear] = useState(2026);
-  const [entity, setEntity] = useState("all");
+  const [entity, setEntity] = useState("all");      // subject (level 1)
+  const [subItemId, setSubItemId] = useState(null); // sub-subject (level 2)
+  const [chargeId, setChargeId] = useState(null);   // charge type (level 3)
   const [density, setDensity] = useState(t.density);
+  // selecting a subject resets the drill-down path
+  const selectSubject = (id) => { setEntity(id); setSubItemId(null); setChargeId(null); };
   const [notes, setNotes] = useState(NOTES);
 
   // tweak: density sync + accent override (stays in the teal family)
@@ -112,19 +116,24 @@ function App() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <SectionHead title="ישויות ונושאים" sub={`מס׳ משלם ${PAYER.payerNo} · ת.ז ${PAYER.taz}`}/>
-              <SubjectStrip subjects={SUBJECTS} selected={entity} onSelect={setEntity}/>
+              <SubjectStrip subjects={SUBJECTS} selected={entity} onSelect={selectSubject}/>
             </div>
             <Card pad={0} style={{ overflow: "visible" }}>
               <div style={{ padding: "18px 20px 0" }}>
-                <SectionHead title="יתרות לפי סוג שירות" icon="sigma"
-                  sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות" : `נושא: ${activeSubject ? activeSubject.name : entity} · לחץ שורה לפירוט`}
+                <SectionHead title={entity === "all" ? "יתרות לפי סוג שירות" : "פירוט נושא"} icon="sigma"
+                  sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות" : `${activeSubject ? activeSubject.name : entity} · נווט: תת-נושא ← סוג חיוב ← מצב חשבון`}
                   right={
                     <Segmented size="sm" value={density} onChange={setDensity}
                       options={[{ value: "comfortable", label: "מרווח" }, { value: "compact", label: "צפוף" }]}/>
                   }/>
               </div>
               <div style={{ padding: "0 20px 20px" }}>
-                <BalancesTable services={services} totals={totals} density={density} txns={TXNS} txnTypes={TXN_TYPES}/>
+                {entity === "all" || !activeSubject
+                  ? <BalancesTable services={services} totals={totals} density={density} txns={TXNS} txnTypes={TXN_TYPES}/>
+                  : <SubjectDrillDown subject={activeSubject} subItemId={subItemId} chargeId={chargeId}
+                      onSelectSubItem={(id) => { setSubItemId(id); setChargeId(null); }}
+                      onSelectCharge={setChargeId} onReset={() => { setSubItemId(null); setChargeId(null); }}
+                      density={density} txnTypes={TXN_TYPES}/>}
               </div>
             </Card>
           </div>

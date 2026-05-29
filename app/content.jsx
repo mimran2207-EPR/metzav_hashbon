@@ -1,45 +1,177 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Icon } from './icons.jsx';
 import { Chip, Segmented } from './ui.jsx';
-import { fmt } from './data.jsx';
+import { fmt, SUBJECT_DETAILS, TXNS } from './data.jsx';
 import s from './ui.module.css';
 
-// SubjectStrip — the payer's subjects ("נושאים") as icon cards. Each card shows
-// the subject name + a count whose unit is subject-specific (properties /
-// children / reports / signs), and the open balance. Selecting filters the table.
-function SubjectStrip({ subjects, selected, onSelect }) {
+// SubjectCard — one subject in the carousel.
+function SubjectCard({ sub, active, onSelect }) {
+  const paid = (sub.balance || 0) <= 0;
   return (
-    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-      <button data-focusring onClick={() => onSelect("all")} style={{ ...entityCardStyle(selected === "all"), minWidth: 150 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={entityIcon(selected === "all")}><Icon name="wallet" size={18} color="#fff"/></div>
-          <div style={{ textAlign: "start" }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>כל הנושאים</div>
-            <div style={{ fontSize: 11, color: "var(--ink-500)" }}><span className="num">{subjects.length}</span> נושאים פעילים</div>
+    <button data-focusring onClick={() => onSelect(sub.id)} style={{ ...entityCardStyle(active), minWidth: 178, flex: "0 0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
+        <div style={entityIcon(active)}><Icon name={sub.icon} size={19} color="#fff"/></div>
+        <div style={{ textAlign: "start", minWidth: 0, flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)", whiteSpace: "nowrap" }}>{sub.name}</span>
+            <Chip tone="teal" style={{ fontSize: 10 }}><span className="num">{sub.count}</span> {sub.unit}</Chip>
+          </div>
+          <div className="num" style={{ fontSize: 11.5, marginTop: 2, fontWeight: 600, color: paid ? "var(--green)" : "var(--ink-700)" }}>
+            {paid ? "0 ✓ ללא חוב" : `₪${fmt(sub.balance)}`}
           </div>
         </div>
-      </button>
-      {subjects.map(sub => {
-        const active = selected === sub.id;
-        const paid = (sub.balance || 0) <= 0;
-        return (
-          <button key={sub.id} data-focusring onClick={() => onSelect(sub.id)} style={{ ...entityCardStyle(active), minWidth: 172 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
-              <div style={entityIcon(active)}><Icon name={sub.icon} size={19} color="#fff"/></div>
-              <div style={{ textAlign: "start", minWidth: 0, flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)", whiteSpace: "nowrap" }}>{sub.name}</span>
-                  <Chip tone="teal" style={{ fontSize: 10 }}><span className="num">{sub.count}</span> {sub.unit}</Chip>
-                </div>
-                <div className="num" style={{ fontSize: 11.5, marginTop: 2, fontWeight: 600,
-                  color: paid ? "var(--green)" : "var(--ink-700)" }}>
-                  {paid ? "0 ✓ ללא חוב" : `₪${fmt(sub.balance)}`}
-                </div>
+      </div>
+    </button>
+  );
+}
+
+// SubjectStrip — horizontal CAROUSEL of subjects. Scroll with the arrows (or
+// native swipe/wheel); the pin button keeps the strip docked while you scroll.
+function SubjectStrip({ subjects, selected, onSelect }) {
+  const scroller = useRef(null);
+  const [pinned, setPinned] = useState(false);
+  const nudge = (dir) => scroller.current && scroller.current.scrollBy({ left: dir * 320, behavior: "smooth" });
+  const arrowBtn = { width: 32, height: 32, borderRadius: 9, border: "1px solid var(--ink-200)", background: "var(--white)",
+    cursor: "pointer", display: "grid", placeItems: "center", flex: "none", boxShadow: "var(--shadow-card)" };
+  return (
+    <div style={{ position: pinned ? "sticky" : "static", top: 118, zIndex: 30,
+      background: pinned ? "var(--ink-50)" : "transparent", borderRadius: 14, padding: pinned ? "8px 0" : 0,
+      boxShadow: pinned ? "0 6px 16px rgba(18,48,60,.08)" : "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <button data-focusring aria-label="גלול ימינה" onClick={() => nudge(1)} style={arrowBtn}>
+          <Icon name="chevright" size={18} color="var(--ink-600)"/>
+        </button>
+        <div ref={scroller} style={{ display: "flex", gap: 12, overflowX: "auto", flex: 1, padding: "4px 2px",
+          scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          <button data-focusring onClick={() => onSelect("all")} style={{ ...entityCardStyle(selected === "all"), minWidth: 152, flex: "0 0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={entityIcon(selected === "all")}><Icon name="wallet" size={18} color="#fff"/></div>
+              <div style={{ textAlign: "start" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>כל הנושאים</div>
+                <div style={{ fontSize: 11, color: "var(--ink-500)" }}><span className="num">{subjects.length}</span> נושאים פעילים</div>
               </div>
             </div>
           </button>
-        );
-      })}
+          {subjects.map(sub => <SubjectCard key={sub.id} sub={sub} active={selected === sub.id} onSelect={onSelect}/>)}
+        </div>
+        <button data-focusring aria-label="גלול שמאלה" onClick={() => nudge(-1)} style={arrowBtn}>
+          <Icon name="chevleft" size={18} color="var(--ink-600)"/>
+        </button>
+        <button data-focusring aria-pressed={pinned} title={pinned ? "שחרר רצועה" : "קבע רצועה"} onClick={() => setPinned(p => !p)}
+          style={{ ...arrowBtn, background: pinned ? "var(--teal-500)" : "var(--white)", border: pinned ? "1px solid var(--teal-500)" : arrowBtn.border }}>
+          <Icon name="pin" size={17} color={pinned ? "#fff" : "var(--ink-600)"}/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Drill-down: subject → sub-items → charges → account status ──────────────
+const UNIT_SINGULAR = { "נכסים": "נכס", "מדי מים": "מד מים", "ילדים": "ילד/ה", "דוחות": "דוח", "שלט": "שלט", "רישומים": "רישום", "תיק": "תיק", "היתר": "היתר" };
+function getSubItems(subject) {
+  const authored = SUBJECT_DETAILS[subject.id];
+  if (authored) return authored.subItems;
+  const sing = UNIT_SINGULAR[subject.unit] || subject.unit;
+  const per = subject.count ? Math.round((subject.balance || 0) / subject.count) : 0;
+  return Array.from({ length: subject.count }, (_, i) => ({
+    id: `${subject.id}-${i + 1}`, name: `${sing} ${i + 1}`, meta: `${subject.name} · פריט ${i + 1}`,
+    charges: [{ id: `${subject.id}-${i + 1}-c`, name: subject.name, balance: per }],
+  }));
+}
+function chargeBalance(charge) {
+  if (charge.txns && TXNS[charge.txns]) { const r = TXNS[charge.txns]; return r[r.length - 1].bal; }
+  return charge.balance || 0;
+}
+function Crumb({ label, onClick, last }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      {onClick && !last
+        ? <button data-focusring onClick={onClick} style={{ border: "none", background: "transparent", cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, color: "var(--teal-600)", padding: 0 }}>{label}</button>
+        : <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-800)" }}>{label}</span>}
+      {!last && <Icon name="chevleft" size={14} color="var(--ink-300)"/>}
+    </span>
+  );
+}
+function DrillRow({ icon, title, meta, balance, count, countLabel, onClick }) {
+  const paid = (balance || 0) <= 0;
+  return (
+    <button data-focusring onClick={onClick} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "12px 14px" }}>
+      <div style={{ width: 36, height: 36, borderRadius: 10, flex: "none", display: "grid", placeItems: "center",
+        background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", boxShadow: "0 3px 8px rgba(42,167,184,.3)" }}>
+        <Icon name={icon} size={18} color="#fff"/>
+      </div>
+      <div style={{ minWidth: 0, flex: 1, textAlign: "start" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>{title}</span>
+          {count != null && <Chip tone="gray" style={{ fontSize: 10 }}><span className="num">{count}</span> {countLabel}</Chip>}
+        </div>
+        {meta && <div style={{ fontSize: 11.5, color: "var(--ink-500)", marginTop: 1 }}>{meta}</div>}
+      </div>
+      <div className="num" style={{ fontSize: 13.5, fontWeight: 700, color: paid ? "var(--green)" : "var(--ink-900)", flex: "none", marginInlineEnd: 4 }}>
+        {paid ? "0 ✓" : `₪${fmt(balance)}`}
+      </div>
+      <Icon name="chevleft" size={16} color="var(--ink-300)"/>
+    </button>
+  );
+}
+
+// SubjectDrillDown — renders the current level (sub-items / charges / account)
+// for a selected subject, with a breadcrumb trail.
+function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSelectCharge, onReset, density, txnTypes }) {
+  const subItems = getSubItems(subject);
+  const subItem = subItems.find(si => si.id === subItemId);
+  const charges = subItem ? subItem.charges : [];
+  const charge = charges.find(c => c.id === chargeId);
+  const subItemBalance = (si) => si.charges.reduce((a, c) => a + chargeBalance(c), 0);
+
+  return (
+    <div>
+      {/* breadcrumb */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 14,
+        background: "var(--ink-50)", border: "1px solid var(--ink-100)", borderRadius: 10, padding: "8px 12px" }}>
+        <Crumb label={subject.name} onClick={onReset} last={!subItem}/>
+        {subItem && <Crumb label={subItem.name} onClick={() => onSelectCharge(null)} last={!charge}/>}
+        {charge && <Crumb label={charge.name} last/>}
+      </div>
+
+      {/* level 2 — sub-items */}
+      {!subItem && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>תתי-נושאים ({subItems.length})</div>
+          {subItems.map(si => (
+            <DrillRow key={si.id} icon={subject.icon} title={si.name} meta={si.meta}
+              count={si.charges.length} countLabel="סוגי חיוב" balance={subItemBalance(si)}
+              onClick={() => onSelectSubItem(si.id)}/>
+          ))}
+        </div>
+      )}
+
+      {/* level 3 — charge types */}
+      {subItem && !charge && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>סוגי חיוב ({charges.length})</div>
+          {charges.map(c => (
+            <DrillRow key={c.id} icon="receipt" title={c.name}
+              meta={c.txns ? `${(TXNS[c.txns] || []).length} תנועות` : "אין תנועות"} balance={chargeBalance(c)}
+              onClick={() => onSelectCharge(c.id)}/>
+          ))}
+        </div>
+      )}
+
+      {/* level 4 — account status */}
+      {charge && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-800)" }}>מצב חשבון — {charge.name}</div>
+            <div className="num" style={{ fontSize: 15, fontWeight: 800, color: chargeBalance(charge) > 0 ? "var(--ink-900)" : "var(--green)" }}>
+              יתרה: {chargeBalance(charge) > 0 ? `₪${fmt(chargeBalance(charge))}` : "0 ✓"}
+            </div>
+          </div>
+          {charge.txns && TXNS[charge.txns]
+            ? <TxnTable rows={TXNS[charge.txns]} types={txnTypes} compact={density === "compact"}/>
+            : <div style={{ padding: "28px", textAlign: "center", color: "var(--ink-400)", fontSize: 13, background: "var(--ink-50)", border: "1px solid var(--ink-100)", borderRadius: 11 }}>אין תנועות להצגה בחיוב זה</div>}
+        </div>
+      )}
     </div>
   );
 }
@@ -199,4 +331,4 @@ function TxnTable({ rows, types, compact }) {
   );
 }
 
-export { SubjectStrip, BalancesTable, TxnTable };
+export { SubjectStrip, SubjectDrillDown, BalancesTable, TxnTable };
