@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Icon } from './icons.jsx';
 import { space, font, weight } from './tokens.js';
+import s from './ui.module.css';
 
 // useMediaQuery — SSR-safe responsive hook. Lets components react to viewport
 // breakpoints without hand-rolling resize listeners or relying on CSS classes
@@ -21,33 +22,19 @@ function useMediaQuery(query) {
   return matches;
 }
 
+// PillButton — migrated to CSS Modules: hover / active / focus / disabled are
+// pure CSS pseudo-classes (no JS hover state, no per-render style objects).
+// `style` is still accepted for one-off layout overrides (e.g. width: "100%").
 function PillButton({ children, variant = "primary", size = "md", chevron = false, icon, onClick, style, title, loading = false, disabled = false }) {
-  const [hover, setHover] = useState(false);
   const off = disabled || loading;
-  const pads = { sm: "7px 16px", md: "10px 22px", lg: "12px 28px" };
-  const fss = { sm: font.sm, md: font.base, lg: font.lg };
-  const variants = {
-    primary:   { background: "linear-gradient(135deg,var(--teal-500),var(--teal-700))", color: "#fff", border: "1.5px solid transparent",
-                 boxShadow: hover && !off ? "0 8px 20px rgba(42,167,184,.45)" : "0 4px 12px rgba(42,167,184,.32)" },
-    secondary: { background: hover ? "var(--teal-50)" : "transparent", color: "var(--teal-600)", border: "1.5px solid var(--teal-500)" },
-    ghost:     { background: hover ? "var(--ink-100)" : "transparent", color: "var(--ink-700)", border: "1.5px solid transparent" },
-    light:     { background: hover ? "#fff" : "rgba(255,255,255,.14)", color: "#fff", border: "1.5px solid rgba(255,255,255,.5)" },
-    danger:    { background: hover ? "#d23f3f" : "var(--red)", color: "#fff", border: "1.5px solid transparent" },
-  };
+  const className = [s.btn, s[size], s[variant]].filter(Boolean).join(" ");
   return (
     <button data-focusring title={title} disabled={off} aria-busy={loading || undefined}
-      onClick={off ? undefined : onClick}
-      onMouseEnter={() => !off && setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: space[2],
-        fontFamily: "var(--font)", fontWeight: weight.semibold, fontSize: fss[size], padding: pads[size],
-        borderRadius: 999, cursor: off ? "not-allowed" : "pointer", opacity: off ? .6 : 1, whiteSpace: "nowrap",
-        transition: "transform .15s ease, box-shadow .15s ease, background .15s ease",
-        transform: hover && !off ? "translateY(-1px)" : "none",
-        ...variants[variant], ...style }}>
+      onClick={off ? undefined : onClick} className={className} style={style}>
       {loading
-        ? <span aria-hidden="true" style={{ width: 16, height: 16, borderRadius: 999, border: "2px solid rgba(255,255,255,.4)", borderTopColor: "#fff", animation: "muSpin .7s linear infinite", flex: "none" }}/>
+        ? <span aria-hidden="true" className={s.spinner}/>
         : <>
-            {chevron && <span style={{ fontSize: font.xl, lineHeight: 1, marginInlineEnd: -2 }}>‹</span>}
+            {chevron && <span className={s.chev}>‹</span>}
             {icon && <Icon name={icon} size={size === "sm" ? 16 : 18} color="currentColor" stroke={1.9}/>}
           </>}
       {children}

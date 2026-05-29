@@ -1,0 +1,61 @@
+/* ui.module.css — scoped styles for the shared UI primitives.
+ *
+ * Proof-of-concept for migrating inline styles → CSS Modules. The win:
+ * real :hover / :active / :focus-visible pseudo-classes instead of JS
+ * onMouseEnter/Leave state, no per-render style-object allocation, and
+ * states that compose correctly (e.g. :hover:not(:disabled)).
+ *
+ * Design tokens are consumed via the CSS custom properties declared in
+ * src/index.css (--teal-*, --ink-*, --text-*, --space-*), keeping a single
+ * source of truth shared with app/tokens.js. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font);
+  font-weight: 600;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  cursor: pointer;
+  transform: none;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(1px) scale(.985); }
+.btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* sizes */
+.sm { font-size: var(--text-sm);   padding: 7px 16px; }
+.md { font-size: var(--text-base); padding: 10px 22px; }
+.lg { font-size: var(--text-lg);   padding: 12px 28px; }
+
+/* variants */
+.primary {
+  background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(42,167,184,.32);
+}
+.primary:hover:not(:disabled) { box-shadow: 0 8px 20px rgba(42,167,184,.45); }
+
+.secondary { background: transparent; color: var(--teal-600); border-color: var(--teal-500); }
+.secondary:hover:not(:disabled) { background: var(--teal-50); }
+
+.ghost { background: transparent; color: var(--ink-700); }
+.ghost:hover:not(:disabled) { background: var(--ink-100); }
+
+.light { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.5); }
+.light:hover:not(:disabled) { background: #fff; color: var(--teal-700); }
+
+.danger { background: var(--red); color: #fff; }
+.danger:hover:not(:disabled) { background: #d23f3f; }
+
+/* parts */
+.chev { font-size: var(--text-xl); line-height: 1; margin-inline-end: -2px; }
+.spinner {
+  width: 16px; height: 16px; border-radius: var(--radius-pill); flex: none;
+  border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+  animation: muSpin .7s linear infinite;
+}
