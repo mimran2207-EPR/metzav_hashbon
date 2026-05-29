@@ -13,6 +13,7 @@ function TopBar({ onCommand, onNav, year, breadcrumb }) {
   return (
     <header style={{ height: 56, background: "var(--white)", borderBottom: "1px solid var(--ink-200)",
       display: "flex", alignItems: "center", gap: 16, padding: "0 20px", position: "sticky", top: 0, zIndex: 100 }}>
+      <a href="#main" className="skip-link">דלג לתוכן הראשי</a>
       <div style={{ display: "flex", alignItems: "center", gap: 11, flex: "none" }}>
         <img src="/assets/municipality-crest.png" alt="מועצה אזורית שדות נגב" style={{ width: 36, height: 36, objectFit: "contain" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13.5, whiteSpace: "nowrap" }}>

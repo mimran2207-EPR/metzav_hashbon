@@ -114,7 +114,7 @@ function NotesDrawer({ open, onClose, notes, onAdd }) {
           <textarea value={draft} onChange={e => setDraft(e.target.value)} placeholder="הוסף הערה חדשה…" rows={2}
             style={{ width: "100%", resize: "none", border: "1px solid var(--ink-200)", borderRadius: 11, padding: "10px 12px",
               fontFamily: "var(--font)", fontSize: 13.5, color: "var(--ink-800)", outline: "none", boxSizing: "border-box" }}/>
-          <PillButton variant="primary" icon="plus" onClick={() => { if (draft.trim()) { onAdd(draft); setDraft(""); window.muToast("ההערה נוספה"); } }}>הוסף הערה</PillButton>
+          <PillButton variant="primary" icon="plus" onClick={() => { if (draft.trim()) { onAdd(draft); setDraft(""); window.muToast("ההערה נוספה", "check", "success"); } }}>הוסף הערה</PillButton>
         </div>
       }>
       <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
@@ -223,7 +223,7 @@ function InterestCalc({ open, onClose, baseNominal }) {
               <span className="num" style={{ fontSize: 24, fontWeight: 700, color: "var(--teal-600)" }}>₪{fmt(total)}</span>
             </div>
           </div>
-          <PillButton variant="primary" icon="check" onClick={() => { window.muToast("החישוב נשמר לתיק המשלם"); onClose(); }} style={{ width: "100%" }}>שמור חישוב</PillButton>
+          <PillButton variant="primary" icon="check" onClick={() => { window.muToast("החישוב נשמר לתיק המשלם", "check", "success"); onClose(); }} style={{ width: "100%" }}>שמור חישוב</PillButton>
         </div>
       </div>
     </div>

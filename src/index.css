@@ -58,3 +58,28 @@ button{ font-family:inherit; }
 @keyframes muPulse{ 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
 .mu-rise{ animation:muRise .28s ease both; }
 [data-focusring]:focus-visible{ outline:none; box-shadow:var(--shadow-focus); border-radius:8px; }
+
+/* ── Pressed/active feedback for all focusable controls ───────────── */
+[data-focusring]:active{ transform:translateY(1px) scale(.985); }
+
+/* ── Semantic status colors + AA-compliant muted text ────────────── */
+:root{
+  --ok-bg:#E7F6EE;   --ok-fg:#1f8a52;
+  --warn-bg:#FDF3DE; --warn-fg:#9a6a10;
+  --err-bg:#FBE9E9;  --err-fg:#b23636;
+  --info-bg:#E9F0FD; --info-fg:#2456c0;
+  --ink-muted:#5E7180; /* was ink-500 (~2.3:1) → now ~4.6:1 on white */
+}
+
+/* ── Skip-to-content link (WCAG 2.4.1) ───────────────────────────── */
+.skip-link{ position:absolute; right:-9999px; top:8px; z-index:9999;
+  background:var(--teal-700); color:#fff; padding:8px 14px; border-radius:8px; font-weight:600; }
+.skip-link:focus{ right:12px; box-shadow:var(--shadow-focus); }
+
+/* ── Respect reduced-motion preference (WCAG 2.3.3) ──────────────── */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important; animation-iteration-count:1 !important;
+    transition-duration:.001ms !important; scroll-behavior:auto !important;
+  }
+}

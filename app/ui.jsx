@@ -21,28 +21,35 @@ function useMediaQuery(query) {
   return matches;
 }
 
-function PillButton({ children, variant = "primary", size = "md", chevron = false, icon, onClick, style, title }) {
+function PillButton({ children, variant = "primary", size = "md", chevron = false, icon, onClick, style, title, loading = false, disabled = false }) {
   const [hover, setHover] = useState(false);
+  const off = disabled || loading;
   const pads = { sm: "7px 16px", md: "10px 22px", lg: "12px 28px" };
   const fss = { sm: font.sm, md: font.base, lg: font.lg };
   const variants = {
     primary:   { background: "linear-gradient(135deg,var(--teal-500),var(--teal-700))", color: "#fff", border: "1.5px solid transparent",
-                 boxShadow: hover ? "0 8px 20px rgba(42,167,184,.45)" : "0 4px 12px rgba(42,167,184,.32)" },
+                 boxShadow: hover && !off ? "0 8px 20px rgba(42,167,184,.45)" : "0 4px 12px rgba(42,167,184,.32)" },
     secondary: { background: hover ? "var(--teal-50)" : "transparent", color: "var(--teal-600)", border: "1.5px solid var(--teal-500)" },
     ghost:     { background: hover ? "var(--ink-100)" : "transparent", color: "var(--ink-700)", border: "1.5px solid transparent" },
     light:     { background: hover ? "#fff" : "rgba(255,255,255,.14)", color: "#fff", border: "1.5px solid rgba(255,255,255,.5)" },
     danger:    { background: hover ? "#d23f3f" : "var(--red)", color: "#fff", border: "1.5px solid transparent" },
   };
   return (
-    <button data-focusring title={title} onClick={onClick}
-      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+    <button data-focusring title={title} disabled={off} aria-busy={loading || undefined}
+      onClick={off ? undefined : onClick}
+      onMouseEnter={() => !off && setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: space[2],
         fontFamily: "var(--font)", fontWeight: weight.semibold, fontSize: fss[size], padding: pads[size],
-        borderRadius: 999, cursor: "pointer", transition: "transform .15s ease, box-shadow .15s ease, background .15s ease", whiteSpace: "nowrap",
-        transform: hover ? "translateY(-1px)" : "none",
+        borderRadius: 999, cursor: off ? "not-allowed" : "pointer", opacity: off ? .6 : 1, whiteSpace: "nowrap",
+        transition: "transform .15s ease, box-shadow .15s ease, background .15s ease",
+        transform: hover && !off ? "translateY(-1px)" : "none",
         ...variants[variant], ...style }}>
-      {chevron && <span style={{ fontSize: font.xl, lineHeight: 1, marginInlineEnd: -2 }}>‹</span>}
-      {icon && <Icon name={icon} size={size === "sm" ? 16 : 18} color="currentColor" stroke={1.9}/>}
+      {loading
+        ? <span aria-hidden="true" style={{ width: 16, height: 16, borderRadius: 999, border: "2px solid rgba(255,255,255,.4)", borderTopColor: "#fff", animation: "muSpin .7s linear infinite", flex: "none" }}/>
+        : <>
+            {chevron && <span style={{ fontSize: font.xl, lineHeight: 1, marginInlineEnd: -2 }}>‹</span>}
+            {icon && <Icon name={icon} size={size === "sm" ? 16 : 18} color="currentColor" stroke={1.9}/>}
+          </>}
       {children}
     </button>
   );
@@ -138,23 +145,30 @@ function Segmented({ options, value, onChange, size = "md" }) {
 
 function ToastHost() {
   const [items, setItems] = useState([]);
+  const remove = (id) => setItems(x => x.filter(i => i.id !== id));
   useEffect(() => {
-    window.muToast = (text, icon = "check") => {
+    // window.muToast(text, icon?, tone?) — tone: default | success | error | warn
+    window.muToast = (text, icon = "check", tone = "default") => {
       const id = Math.random().toString(36).slice(2);
-      setItems(x => [...x, { id, text, icon }]);
-      setTimeout(() => setItems(x => x.filter(i => i.id !== id)), 3200);
+      setItems(x => [...x, { id, text, icon, tone }]);
+      setTimeout(() => remove(id), 4000);
     };
   }, []);
+  const dot = { default: "var(--teal-500)", success: "var(--green)", error: "var(--red)", warn: "var(--amber)" };
   return (
-    <div style={{ position: "fixed", bottom: space[6], left: space[6], zIndex: 9000, display: "flex", flexDirection: "column", gap: space[2.5] }}>
+    <div role="status" aria-live="polite" style={{ position: "fixed", bottom: space[6], left: space[6], zIndex: 9000, display: "flex", flexDirection: "column", gap: space[2.5] }}>
       {items.map(i => (
         <div key={i.id} className="mu-rise" style={{ display: "flex", alignItems: "center", gap: space[2.5],
-          background: "var(--ink-900)", color: "#fff", padding: "11px 16px", borderRadius: 12,
+          background: "var(--ink-900)", color: "#fff", padding: "11px 12px 11px 16px", borderRadius: 12,
           boxShadow: "var(--shadow-lg)", fontSize: font.base, fontWeight: weight.medium, maxWidth: 380 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 999, background: "var(--teal-500)", display: "grid", placeItems: "center", flex: "none" }}>
+          <div style={{ width: 22, height: 22, borderRadius: 999, background: dot[i.tone] || dot.default, display: "grid", placeItems: "center", flex: "none" }}>
             <Icon name={i.icon} size={14} color="#fff" stroke={2.4}/>
           </div>
-          {i.text}
+          <span style={{ flex: 1 }}>{i.text}</span>
+          <button data-focusring aria-label="סגירה" onClick={() => remove(i.id)}
+            style={{ border: "none", background: "transparent", color: "rgba(255,255,255,.6)", cursor: "pointer", display: "grid", placeItems: "center", padding: 2, flex: "none" }}>
+            <Icon name="close" size={15} color="currentColor"/>
+          </button>
         </div>
       ))}
     </div>

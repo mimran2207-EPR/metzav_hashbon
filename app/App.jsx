@@ -105,7 +105,7 @@ function App() {
       </div>
 
       {/* main two-column */}
-      <main style={{ flex: 1, maxWidth: 1360, margin: "0 auto", width: "100%", padding: "18px 24px 0", boxSizing: "border-box" }}>
+      <main id="main" style={{ flex: 1, maxWidth: 1360, margin: "0 auto", width: "100%", padding: "18px 24px 0", boxSizing: "border-box", scrollMarginTop: 72 }}>
         <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(0,1fr) 340px", gap: 18, alignItems: "start" }}>
           {/* right (data) column */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
