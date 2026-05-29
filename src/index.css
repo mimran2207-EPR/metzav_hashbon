@@ -18,6 +18,18 @@
   --shadow-lg:0 12px 28px rgba(18,48,60,.10);
   --shadow-focus:0 0 0 3px rgba(42,167,184,.25);
   --font:"Rubik","Arial Hebrew","Segoe UI",system-ui,sans-serif;
+
+  /* Spacing scale (4px grid) — mirrors app/tokens.js `space` */
+  --space-0:0; --space-px:1px; --space-0_5:2px; --space-1:4px; --space-1_5:6px;
+  --space-2:8px; --space-2_5:10px; --space-3:12px; --space-3_5:14px; --space-4:16px;
+  --space-4_5:18px; --space-5:20px; --space-5_5:22px; --space-6:24px; --space-7:28px;
+  --space-8:32px; --space-10:40px;
+  /* Radius scale — mirrors app/tokens.js `radius` */
+  --radius-sm:6px; --radius-md:8px; --radius-lg:11px; --radius-xl:13px;
+  --radius-2xl:16px; --radius-pill:999px;
+  /* Type scale — mirrors app/tokens.js `font` */
+  --text-xs:12px; --text-sm:13px; --text-base:14px; --text-md:15px; --text-lg:16px;
+  --text-xl:17px; --text-2xl:18px; --text-3xl:24px; --text-hero:42px;
 }
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
