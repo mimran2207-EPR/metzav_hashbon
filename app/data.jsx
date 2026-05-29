@@ -22,11 +22,27 @@ const ENTITIES = [
 ];
 
 const SERVICES = [
-  { id: "arnona",  name: "ארנונה", entity: "5002205", nominal: 8420, indexation: 612, interest: 1340, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 9 },
-  { id: "water",   name: "מים וביוב", entity: "13-88142", nominal: 1180, indexation: 64, interest: 142, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 6 },
-  { id: "shmira",  name: "אגרת שמירה", entity: "5002205", nominal: 540, indexation: 22, interest: 38, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 4 },
-  { id: "sewage",  name: "אגרת ביוב", entity: "5002205", nominal: 760, indexation: 40, interest: 96, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 5 },
-  { id: "collect", name: "הוצ' גבייה (מילגם חדש)", entity: "5002205", nominal: 320, indexation: 0, interest: 0, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 2 },
+  { id: "arnona",  name: "ארנונה", subject: "arnona", entity: "5002205", nominal: 8420, indexation: 612, interest: 1340, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 9 },
+  { id: "water",   name: "מים וביוב", subject: "water", entity: "13-88142", nominal: 1180, indexation: 64, interest: 142, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 6 },
+  { id: "shmira",  name: "אגרת שמירה", subject: "arnona", entity: "5002205", nominal: 540, indexation: 22, interest: 38, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 4 },
+  { id: "sewage",  name: "אגרת ביוב", subject: "arnona", entity: "5002205", nominal: 760, indexation: 40, interest: 96, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 5 },
+  { id: "collect", name: "הוצ' גבייה (מילגם חדש)", subject: "arnona", entity: "5002205", nominal: 320, indexation: 0, interest: 0, get balance(){ return this.nominal+this.indexation+this.interest; }, txns: 2 },
+];
+
+// SUBJECTS — the payer's subjects ("נושאים"). Each has an icon and a count whose
+// UNIT changes per subject type: properties / children / reports / signs …
+// `id` matches SERVICES.subject so selecting a subject filters the balances table.
+function subjectBalance(id) { return SERVICES.filter(s => s.subject === id).reduce((a, s) => a + s.balance, 0); }
+const SUBJECTS = [
+  { id: "arnona",      name: "ארנונה",   icon: "building",    count: 3, unit: "נכסים",   get balance(){ return subjectBalance("arnona"); } },
+  { id: "water",       name: "מים וביוב", icon: "droplet",     count: 2, unit: "מדי מים", get balance(){ return subjectBalance("water"); } },
+  { id: "education",   name: "חינוך",     icon: "education",   count: 2, unit: "ילדים",   balance: 0 },
+  { id: "parking",     name: "חניה",      icon: "parking",     count: 5, unit: "דוחות",   balance: 740 },
+  { id: "signage",     name: "שילוט",     icon: "signage",     count: 1, unit: "שלט",     balance: 0 },
+  { id: "clubs",       name: "חוגים",     icon: "clubs",       count: 3, unit: "רישומים", balance: 180 },
+  { id: "welfare",     name: "רווחה",     icon: "welfare",     count: 1, unit: "תיק",     balance: 0 },
+  { id: "engineering", name: "הנדסה",     icon: "engineering", count: 1, unit: "היתר",    balance: 0 },
+  { id: "supervision", name: "פיקוח",     icon: "supervision", count: 1, unit: "תיק",     balance: 0 },
 ];
 
 function sumServices(field) { return SERVICES.reduce((a, s) => a + (field === "balance" ? s.balance : s[field]), 0); }
@@ -132,6 +148,6 @@ const DOCUMENTS = [
 function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
 
 export {
-  PAYER, ENTITIES, SERVICES, TOTALS, TXNS, TXN_TYPES, YEARS,
+  PAYER, ENTITIES, SUBJECTS, SERVICES, TOTALS, TXNS, TXN_TYPES, YEARS,
   AI_INSIGHTS, AI_ACTIONS, QUICK_ACTIONS, NOTES, DOCUMENTS, fmt,
 };
