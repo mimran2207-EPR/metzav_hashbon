@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Icon } from './icons.jsx';
 import { Chip, Segmented } from './ui.jsx';
 import { fmt } from './data.jsx';
+import s from './ui.module.css';
 
 function EntityStrip({ entities, selected, onSelect }) {
   const subjIcon = { 3: "building", 13: "droplet", 15: "receipt", 1: "user" };
@@ -71,29 +72,27 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
           </tr>
         </thead>
         <tbody>
-          {services.map(s => {
-            const isOpen = open === s.id;
-            const rows = txns[s.id] || [];
+          {services.map(svc => {
+            const isOpen = open === svc.id;
+            const rows = txns[svc.id] || [];
             return (
-              <React.Fragment key={s.id}>
+              <React.Fragment key={svc.id}>
                 <tr data-focusring role="button" tabIndex={0} aria-expanded={isOpen}
-                  aria-label={`${s.name} — יתרה ₪${fmt(s.balance)}. הקש להצגת תנועות`}
-                  onClick={() => setOpen(isOpen ? null : s.id)}
-                  onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(isOpen ? null : s.id); } }}
-                  style={{ cursor: "pointer", background: isOpen ? "var(--teal-50)" : "#fff", transition: "background .12s ease" }}
-                  onMouseEnter={e => { if (!isOpen) e.currentTarget.style.background = "var(--ink-50)"; }}
-                  onMouseLeave={e => { if (!isOpen) e.currentTarget.style.background = "#fff"; }}>
+                  aria-label={`${svc.name} — יתרה ₪${fmt(svc.balance)}. הקש להצגת תנועות`}
+                  onClick={() => setOpen(isOpen ? null : svc.id)}
+                  onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(isOpen ? null : svc.id); } }}
+                  className={`${s.tRow} ${isOpen ? s.tRowOpen : ""}`}>
                   <td style={{ padding: cellPad, borderBottom: "1px solid var(--ink-100)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: 999, background: s.balance > 0 ? "var(--amber)" : "var(--green)", flex: "none" }}/>
-                      <span style={{ fontWeight: 600, color: "var(--ink-800)" }}>{s.name}</span>
+                      <div style={{ width: 8, height: 8, borderRadius: 999, background: svc.balance > 0 ? "var(--amber)" : "var(--green)", flex: "none" }}/>
+                      <span style={{ fontWeight: 600, color: "var(--ink-800)" }}>{svc.name}</span>
                       <Chip tone="gray" style={{ fontSize: 10 }}><span className="num">{rows.length}</span> תנועות</Chip>
                     </div>
                   </td>
-                  <td className="num" style={{ ...numCell(cellPad) }}>₪{fmt(s.nominal)}</td>
-                  <td className="num" style={{ ...numCell(cellPad), color: "var(--ink-600)" }}>₪{fmt(s.indexation)}</td>
-                  <td className="num" style={{ ...numCell(cellPad), color: "var(--ink-600)" }}>₪{fmt(s.interest)}</td>
-                  <td className="num" style={{ ...numCell(cellPad), fontWeight: 700, color: "var(--ink-900)" }}>₪{fmt(s.balance)}</td>
+                  <td className="num" style={{ ...numCell(cellPad) }}>₪{fmt(svc.nominal)}</td>
+                  <td className="num" style={{ ...numCell(cellPad), color: "var(--ink-600)" }}>₪{fmt(svc.indexation)}</td>
+                  <td className="num" style={{ ...numCell(cellPad), color: "var(--ink-600)" }}>₪{fmt(svc.interest)}</td>
+                  <td className="num" style={{ ...numCell(cellPad), fontWeight: 700, color: "var(--ink-900)" }}>₪{fmt(svc.balance)}</td>
                   <td style={{ padding: cellPad, textAlign: "center", borderBottom: "1px solid var(--ink-100)" }}>
                     <Icon name="chevdown" size={17} color="var(--ink-400)" style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .18s ease", margin: "0 auto" }}/>
                   </td>
@@ -166,9 +165,7 @@ function TxnTable({ rows, types, compact }) {
           {filtered.map((r, i) => {
             const credit = r.dc === "ז";
             return (
-              <tr key={i} style={{ borderBottom: "1px solid var(--ink-50)" }}
-                onMouseEnter={e => e.currentTarget.style.background = "var(--ink-50)"}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+              <tr key={i} className={s.txRow} style={{ borderBottom: "1px solid var(--ink-50)" }}>
                 <td className="num" style={{ padding: compact ? "6px 12px" : "9px 12px", color: "var(--ink-600)", whiteSpace: "nowrap" }}>{r.date}</td>
                 <td style={{ padding: compact ? "6px 12px" : "9px 12px", color: "var(--ink-800)", fontWeight: 500, whiteSpace: "nowrap" }}>
                   {types[r.type]} <span className="num" style={{ color: "var(--ink-400)", fontSize: 11 }}>({r.type})</span>

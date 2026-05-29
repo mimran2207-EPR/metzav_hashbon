@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icon } from './icons.jsx';
 import { Tip } from './ui.jsx';
+import s from './ui.module.css';
 
 function TopBar({ onCommand, onNav, year, breadcrumb }) {
   const navBtns = [
@@ -24,12 +25,7 @@ function TopBar({ onCommand, onNav, year, breadcrumb }) {
         </div>
       </div>
 
-      <button data-focusring onClick={onCommand} style={{ flex: "1 1 auto", maxWidth: 520, margin: "0 auto",
-        display: "flex", alignItems: "center", gap: 10, height: 38, padding: "0 14px",
-        background: "var(--ink-50)", border: "1px solid var(--ink-200)", borderRadius: 999, cursor: "text",
-        color: "var(--ink-500)", fontFamily: "var(--font)", fontSize: 14, transition: "all .15s ease" }}
-      onMouseEnter={(e) => {e.currentTarget.style.borderColor = "var(--teal-300)";e.currentTarget.style.background = "#fff";}}
-      onMouseLeave={(e) => {e.currentTarget.style.borderColor = "var(--ink-200)";e.currentTarget.style.background = "var(--ink-50)";}}>
+      <button data-focusring onClick={onCommand} className={s.searchTrigger}>
         <Icon name="search" size={17} color="var(--teal-500)" />
         <span style={{ flex: 1, textAlign: "start" }}>חפש משלם, פיזי, פעולה או מסך…</span>
         <kbd style={{ fontFamily: "var(--font)", fontSize: 11.5, fontWeight: 600, color: "var(--ink-500)",
@@ -39,11 +35,7 @@ function TopBar({ onCommand, onNav, year, breadcrumb }) {
       <div style={{ display: "flex", alignItems: "center", gap: 2, flex: "none" }}>
         {navBtns.map((b) =>
         <Tip key={b.id} label={b.label}>
-            <button data-focusring onClick={() => onNav && onNav(b.id)} aria-label={b.label}
-          style={{ width: 36, height: 36, borderRadius: 9, border: "none", background: "transparent",
-            cursor: "pointer", display: "grid", placeItems: "center", color: "var(--ink-600)", transition: "all .12s ease" }}
-          onMouseEnter={(e) => {e.currentTarget.style.background = "var(--ink-100)";e.currentTarget.style.color = "var(--teal-600)";}}
-          onMouseLeave={(e) => {e.currentTarget.style.background = "transparent";e.currentTarget.style.color = "var(--ink-600)";}}>
+            <button data-focusring onClick={() => onNav && onNav(b.id)} aria-label={b.label} className={s.iconNav}>
               <Icon name={b.icon} size={19} color="currentColor" />
             </button>
           </Tip>

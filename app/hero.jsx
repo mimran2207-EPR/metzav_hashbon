@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Icon } from './icons.jsx';
 import { Card, Chip, PillButton, useMediaQuery } from './ui.jsx';
 import { YEARS, fmt } from './data.jsx';
+import s from './ui.module.css';
 
 function fieldRow(label, value, mono) {
   return (
@@ -101,11 +102,7 @@ function AlertsCard({ notesCount, docsCount, onNotes, onDocs, onEnforce }) {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1 }}>
         {rows.map((r, i) => (
-          <button key={i} data-focusring onClick={r.onClick} style={{ display: "flex", alignItems: "center", gap: 11,
-            textAlign: "start", border: "1px solid var(--ink-200)", background: "var(--white)", borderRadius: 11,
-            padding: "9px 11px", cursor: "pointer", transition: "all .14s ease", width: "100%" }}
-            onMouseEnter={e => e.currentTarget.style.background = "var(--ink-50)"}
-            onMouseLeave={e => e.currentTarget.style.background = "var(--white)"}>
+          <button key={i} data-focusring onClick={r.onClick} className={s.listRow} style={{ padding: "9px 11px" }}>
             <div style={{ width: 32, height: 32, borderRadius: 9, background: toneBg[r.tone], display: "grid", placeItems: "center", flex: "none" }}>
               <Icon name={r.icon} size={17} color={toneColor[r.tone]}/>
             </div>
@@ -197,12 +194,7 @@ function ActionBar({ notesCount, year, onYear, handlers }) {
           <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
             <span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--ink-400)", marginInlineEnd: 4, letterSpacing: ".02em" }}>{g.name}</span>
             {g.items.map(it => (
-              <button key={it.id} data-focusring onClick={it.onClick} title={it.label}
-                style={{ display: "flex", alignItems: "center", gap: 7, border: "none", background: "transparent",
-                  cursor: "pointer", borderRadius: 9, padding: "8px 11px", color: "var(--ink-700)", fontFamily: "var(--font)",
-                  fontSize: 13.5, fontWeight: 500, position: "relative", transition: "all .12s ease" }}
-                onMouseEnter={e => { e.currentTarget.style.background = "var(--teal-50)"; e.currentTarget.style.color = "var(--teal-700)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--ink-700)"; }}>
+              <button key={it.id} data-focusring onClick={it.onClick} title={it.label} className={s.actionItem}>
                 <Icon name={it.icon} size={18} color="currentColor"/>
                 <span>{it.label}</span>
                 {it.badge != null && (

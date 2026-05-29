@@ -153,3 +153,48 @@
 .sheetClose:hover { background: var(--ink-200); }
 .sheetBody { flex: 1; overflow-y: auto; padding: 18px 22px; }
 .sheetFooter { border-top: 1px solid var(--ink-200); padding: 14px 22px; }
+
+/* ── Reusable interaction patterns (shared across screens) ────────── */
+/* TopBar icon nav buttons */
+.iconNav {
+  width: 36px; height: 36px; border-radius: 9px; border: none; background: transparent;
+  cursor: pointer; display: grid; place-items: center; color: var(--ink-600);
+  transition: background .12s ease, color .12s ease;
+}
+.iconNav:hover { background: var(--ink-100); color: var(--teal-600); }
+
+/* TopBar command/search trigger */
+.searchTrigger {
+  flex: 1 1 auto; max-width: 520px; margin: 0 auto;
+  display: flex; align-items: center; gap: var(--space-2_5); height: 38px; padding: 0 14px;
+  background: var(--ink-50); border: 1px solid var(--ink-200); border-radius: var(--radius-pill);
+  cursor: text; color: var(--ink-500); font-family: var(--font); font-size: var(--text-base);
+  transition: background .15s ease, border-color .15s ease;
+}
+.searchTrigger:hover { background: #fff; border-color: var(--teal-300); }
+
+/* ActionBar toolbar items */
+.actionItem {
+  display: flex; align-items: center; gap: 7px; border: none; background: transparent;
+  cursor: pointer; border-radius: 9px; padding: 8px 11px; color: var(--ink-700);
+  font-family: var(--font); font-size: var(--text-base); font-weight: 500; position: relative;
+  transition: background .12s ease, color .12s ease;
+}
+.actionItem:hover { background: var(--teal-50); color: var(--teal-700); }
+
+/* Bordered list rows (alerts, quick actions) */
+.listRow {
+  display: flex; align-items: center; gap: 11px; text-align: start; width: 100%;
+  border: 1px solid var(--ink-200); background: var(--white); border-radius: var(--radius-lg);
+  cursor: pointer; transition: background .14s ease, border-color .14s ease;
+}
+.listRow:hover { background: var(--ink-50); }
+.listRowTeal:hover { background: var(--teal-50); border-color: var(--teal-300); }
+
+/* Balances-table master rows */
+.tRow { cursor: pointer; background: #fff; transition: background .12s ease; }
+.tRow:hover:not(.tRowOpen) { background: var(--ink-50); }
+.tRowOpen { background: var(--teal-50); }
+/* Transaction sub-rows */
+.txRow { transition: background .12s ease; }
+.txRow:hover { background: var(--ink-50); }

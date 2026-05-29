@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from './icons.jsx';
 import { SectionHead, Card } from './ui.jsx';
+import s from './ui.module.css';
 
 function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" }) {
   const showInsights = mode !== "subtle";
@@ -60,11 +61,7 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
         <SectionHead title="פעולות מהירות" icon="sparkle"/>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {actions.map(a => (
-            <button key={a.id} data-focusring onClick={() => onAction(a)} style={{ display: "flex", alignItems: "center", gap: 11,
-              textAlign: "start", border: "1px solid var(--ink-200)", background: "#fff", borderRadius: 11, padding: "10px 12px",
-              cursor: "pointer", transition: "all .14s ease", width: "100%" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--teal-300)"; e.currentTarget.style.background = "var(--teal-50)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--ink-200)"; e.currentTarget.style.background = "#fff"; }}>
+            <button key={a.id} data-focusring onClick={() => onAction(a)} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "10px 12px" }}>
               <div style={{ width: 32, height: 32, borderRadius: 9, background: "var(--teal-50)", display: "grid", placeItems: "center", flex: "none" }}>
                 <Icon name={a.icon} size={17} color="var(--teal-600)"/>
               </div>
