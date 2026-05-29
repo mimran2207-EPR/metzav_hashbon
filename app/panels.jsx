@@ -1,7 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from './icons.jsx';
-import { SectionHead, Card } from './ui.jsx';
+import { Card } from './ui.jsx';
 import s from './ui.module.css';
+
+// CollapsibleCard — a Card whose header toggles the body open/closed (accordion).
+function CollapsibleCard({ title, sub, icon, defaultOpen = true, cardStyle, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <Card pad={18} style={cardStyle}>
+      <button data-focusring onClick={() => setOpen(o => !o)} aria-expanded={open}
+        style={{ width: "100%", border: "none", background: "transparent", cursor: "pointer", padding: 0,
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+          fontFamily: "var(--font)", marginBottom: open ? 14 : 0, transition: "margin .2s ease" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+          {icon && <span style={{ width: 30, height: 30, borderRadius: 9, flex: "none",
+            background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", display: "grid", placeItems: "center",
+            boxShadow: "0 3px 8px rgba(42,167,184,.32)" }}>
+            <Icon name={icon} size={17} color="#fff"/></span>}
+          <span style={{ textAlign: "start", minWidth: 0 }}>
+            <span style={{ display: "block", fontSize: 20, fontWeight: 800, color: "var(--teal-800)", lineHeight: 1.2, letterSpacing: "-.01em" }}>{title}</span>
+            {sub && <span style={{ display: "block", fontSize: 12, color: "var(--ink-500)", marginTop: 2 }}>{sub}</span>}
+          </span>
+        </span>
+        <Icon name="chevdown" size={20} color="var(--ink-400)" style={{ flex: "none", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}/>
+      </button>
+      {open && <div className="mu-rise">{children}</div>}
+    </Card>
+  );
+}
 
 function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" }) {
   const showInsights = mode !== "subtle";
@@ -32,8 +58,8 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
       </div>
 
       {showInsights && (
-      <Card pad={18} style={bold ? { borderColor: "var(--teal-200)", boxShadow: "var(--shadow-md)" } : null}>
-        <SectionHead title="תובנות והסברים" sub="כל המלצה מלווה במקור" icon="info"/>
+      <CollapsibleCard title="תובנות והסברים" sub="כל המלצה מלווה במקור" icon="info"
+        cardStyle={bold ? { borderColor: "var(--teal-200)", boxShadow: "var(--shadow-md)" } : null}>
         <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
           {insights.map(ins => {
             const c = { warn: "var(--amber)", good: "var(--green)", crit: "var(--red)" }[ins.tone];
@@ -54,11 +80,10 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
             );
           })}
         </div>
-      </Card>
+      </CollapsibleCard>
       )}
 
-      <Card pad={18}>
-        <SectionHead title="פעולות מהירות" icon="sparkle"/>
+      <CollapsibleCard title="פעולות מהירות" icon="sparkle">
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {actions.map(a => (
             <button key={a.id} data-focusring onClick={() => onAction(a)} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "10px 12px" }}>
@@ -73,11 +98,10 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
             </button>
           ))}
         </div>
-      </Card>
+      </CollapsibleCard>
 
       {showHistory && (
-      <Card pad={18}>
-        <SectionHead title="משלמים היסטוריים" icon="history"/>
+      <CollapsibleCard title="משלמים היסטוריים" icon="history" defaultOpen={false}>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {[{ n: "לדוגמה ישראל (קודם)", no: "888-DEMO-1", y: "2008–2014" }, { n: "לדוגמה רחל", no: "888-DEMO-2", y: "2014–2019" }].map((h, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}>
@@ -91,7 +115,7 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
             </div>
           ))}
         </div>
-      </Card>
+      </CollapsibleCard>
       )}
     </div>
   );
