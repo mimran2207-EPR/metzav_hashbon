@@ -5,8 +5,10 @@ import { HeroZone, ActionBar } from './hero.jsx';
 import { SubjectStrip, SubjectDrillDown, BalancesTable } from './content.jsx';
 import { LeftColumn, CommandBar } from './panels.jsx';
 import { CopilotPanel, NotesDrawer, DocsDrawer, InterestCalc } from './panels2.jsx';
+import { WideTxnScreen } from './wide-txns.jsx';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakToggle } from './tweaks-panel.jsx';
 import { SectionHead, Card, Segmented, ToastHost, useMediaQuery } from './ui.jsx';
+import { Icon } from './icons.jsx';
 import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, SUBJECTS, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -40,6 +42,7 @@ function App() {
   const [notesOpen, setNotesOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [wideOpen, setWideOpen] = useState(false);
 
   // ⌘K / Ctrl+K + shortcuts
   // NOTE: we intentionally do NOT hijack Ctrl/⌘+P — overriding the browser's
@@ -121,10 +124,19 @@ function App() {
             <Card pad={0} style={{ overflow: "visible" }}>
               <div style={{ padding: "18px 20px 0" }}>
                 <SectionHead title={entity === "all" ? "יתרות לפי סוג שירות" : "פירוט נושא"} icon="sigma"
-                  sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות" : `${activeSubject ? activeSubject.name : entity} · נווט: תת-נושא ← סוג חיוב ← מצב חשבון`}
+                  sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות"
+                    : `${activeSubject ? activeSubject.name : entity}${activeSubject ? ` · ${activeSubject.count} ${activeSubject.unit}` : ""} · לחץ פריט לפירוט סוגי חיוב ותנועות`}
                   right={
-                    <Segmented size="sm" value={density} onChange={setDensity}
-                      options={[{ value: "comfortable", label: "מרווח" }, { value: "compact", label: "צפוף" }]}/>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button data-focusring onClick={() => setWideOpen(true)} title="פתח מסך תנועות מלא"
+                        style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid var(--teal-500)",
+                          background: "var(--teal-50)", color: "var(--teal-700)", borderRadius: 999, padding: "6px 13px",
+                          cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600 }}>
+                        <Icon name="receipt" size={15} color="var(--teal-600)"/> תנועות למשלם
+                      </button>
+                      <Segmented size="sm" value={density} onChange={setDensity}
+                        options={[{ value: "comfortable", label: "מרווח" }, { value: "compact", label: "צפוף" }]}/>
+                    </div>
                   }/>
               </div>
               <div style={{ padding: "0 20px 20px" }}>
@@ -133,7 +145,7 @@ function App() {
                   : <SubjectDrillDown subject={activeSubject} subItemId={subItemId} chargeId={chargeId}
                       onSelectSubItem={(id) => { setSubItemId(id); setChargeId(null); }}
                       onSelectCharge={setChargeId} onReset={() => { setSubItemId(null); setChargeId(null); }}
-                      density={density} txnTypes={TXN_TYPES}/>}
+                      onOpenWide={() => setWideOpen(true)} density={density} txnTypes={TXN_TYPES}/>}
               </div>
             </Card>
           </div>
@@ -151,6 +163,7 @@ function App() {
       <NotesDrawer open={notesOpen} onClose={() => setNotesOpen(false)} notes={notes} onAdd={addNote}/>
       <DocsDrawer open={docsOpen} onClose={() => setDocsOpen(false)} docs={DOCUMENTS}/>
       <InterestCalc open={calcOpen} onClose={() => setCalcOpen(false)} baseNominal={TOTALS.nominal}/>
+      <WideTxnScreen open={wideOpen} onClose={() => setWideOpen(false)} payer={PAYER}/>
       <ToastHost/>
 
       <TweaksPanel>

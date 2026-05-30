@@ -18,11 +18,11 @@ function CollapsibleCard({ title, sub, icon, defaultOpen = true, cardStyle, chil
             boxShadow: "0 3px 8px rgba(42,167,184,.32)" }}>
             <Icon name={icon} size={17} color="#fff"/></span>}
           <span style={{ textAlign: "start", minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 20, fontWeight: 800, color: "var(--teal-800)", lineHeight: 1.2, letterSpacing: "-.01em" }}>{title}</span>
+            <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: "var(--teal-700)", lineHeight: 1.25 }}>{title}</span>
             {sub && <span style={{ display: "block", fontSize: 12, color: "var(--ink-500)", marginTop: 2 }}>{sub}</span>}
           </span>
         </span>
-        <Icon name="chevdown" size={20} color="var(--ink-400)" style={{ flex: "none", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}/>
+        <Icon name="chevdown" size={18} color="var(--ink-400)" style={{ flex: "none", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}/>
       </button>
       {open && <div className="mu-rise">{children}</div>}
     </Card>

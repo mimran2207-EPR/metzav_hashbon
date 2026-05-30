@@ -82,17 +82,21 @@ function chargeBalance(charge) {
   if (charge.txns && TXNS[charge.txns]) { const r = TXNS[charge.txns]; return r[r.length - 1].bal; }
   return charge.balance || 0;
 }
-function Crumb({ label, onClick, last }) {
+function Crumb({ label, kind, onClick, last }) {
+  const labelEl = onClick && !last
+    ? <button data-focusring onClick={onClick} style={{ border: "none", background: "transparent", cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, color: "var(--teal-600)", padding: 0 }}>{label}</button>
+    : <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-800)" }}>{label}</span>;
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-      {onClick && !last
-        ? <button data-focusring onClick={onClick} style={{ border: "none", background: "transparent", cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, color: "var(--teal-600)", padding: 0 }}>{label}</button>
-        : <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-800)" }}>{label}</span>}
+      <span style={{ display: "inline-flex", flexDirection: "column", gap: 1, lineHeight: 1.15, textAlign: "start" }}>
+        {kind && <span style={{ fontSize: 9.5, fontWeight: 600, color: "var(--ink-400)", letterSpacing: ".02em" }}>{kind}</span>}
+        {labelEl}
+      </span>
       {!last && <Icon name="chevleft" size={14} color="var(--ink-300)"/>}
     </span>
   );
 }
-function DrillRow({ icon, title, meta, balance, count, countLabel, onClick }) {
+function DrillRow({ icon, title, badge, meta, balance, count, countLabel, onClick }) {
   const paid = (balance || 0) <= 0;
   return (
     <button data-focusring onClick={onClick} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "12px 14px" }}>
@@ -101,8 +105,10 @@ function DrillRow({ icon, title, meta, balance, count, countLabel, onClick }) {
         <Icon name={icon} size={18} color="#fff"/>
       </div>
       <div style={{ minWidth: 0, flex: 1, textAlign: "start" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>{title}</span>
+          {badge && <span className="num" style={{ fontSize: 10.5, fontWeight: 600, color: "var(--teal-700)", background: "var(--teal-50)",
+            border: "1px solid var(--teal-100)", borderRadius: 6, padding: "1px 7px" }}>{badge}</span>}
           {count != null && <Chip tone="gray" style={{ fontSize: 10 }}><span className="num">{count}</span> {countLabel}</Chip>}
         </div>
         {meta && <div style={{ fontSize: 11.5, color: "var(--ink-500)", marginTop: 1 }}>{meta}</div>}
@@ -117,29 +123,31 @@ function DrillRow({ icon, title, meta, balance, count, countLabel, onClick }) {
 
 // SubjectDrillDown — renders the current level (sub-items / charges / account)
 // for a selected subject, with a breadcrumb trail.
-function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSelectCharge, onReset, density, txnTypes }) {
+function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSelectCharge, onReset, onOpenWide, density, txnTypes }) {
   const subItems = getSubItems(subject);
   const subItem = subItems.find(si => si.id === subItemId);
   const charges = subItem ? subItem.charges : [];
   const charge = charges.find(c => c.id === chargeId);
   const subItemBalance = (si) => si.charges.reduce((a, c) => a + chargeBalance(c), 0);
+  const sing = UNIT_SINGULAR[subject.unit] || subject.unit || "פריט"; // level-2 singular (נכס / מד מים / ילד…)
+  const authored = !!SUBJECT_DETAILS[subject.id]; // real physical ids vs auto-generated
 
   return (
     <div>
-      {/* breadcrumb */}
+      {/* breadcrumb — typed levels: נושא › נכס › סוג חיוב */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 14,
         background: "var(--ink-50)", border: "1px solid var(--ink-100)", borderRadius: 10, padding: "8px 12px" }}>
-        <Crumb label={subject.name} onClick={onReset} last={!subItem}/>
-        {subItem && <Crumb label={subItem.name} onClick={() => onSelectCharge(null)} last={!charge}/>}
-        {charge && <Crumb label={charge.name} last/>}
+        <Crumb kind="נושא" label={subject.name} onClick={onReset} last={!subItem}/>
+        {subItem && <Crumb kind={sing} label={subItem.name} onClick={() => onSelectCharge(null)} last={!charge}/>}
+        {charge && <Crumb kind="סוג חיוב" label={charge.name} last/>}
       </div>
 
-      {/* level 2 — sub-items */}
+      {/* level 2 — sub-items (נכסים / מדי מים / ילדים…) */}
       {!subItem && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>תתי-נושאים ({subItems.length})</div>
+          <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>{subject.unit} ({subItems.length})</div>
           {subItems.map(si => (
-            <DrillRow key={si.id} icon={subject.icon} title={si.name} meta={si.meta}
+            <DrillRow key={si.id} icon={subject.icon} title={si.name} badge={authored ? `פיזי ${si.id}` : null} meta={si.meta}
               count={si.charges.length} countLabel="סוגי חיוב" balance={subItemBalance(si)}
               onClick={() => onSelectSubItem(si.id)}/>
           ))}
@@ -161,10 +169,20 @@ function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSel
       {/* level 4 — account status */}
       {charge && (
         <div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-800)" }}>מצב חשבון — {charge.name}</div>
-            <div className="num" style={{ fontSize: 15, fontWeight: 800, color: chargeBalance(charge) > 0 ? "var(--ink-900)" : "var(--green)" }}>
-              יתרה: {chargeBalance(charge) > 0 ? `₪${fmt(chargeBalance(charge))}` : "0 ✓"}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="num" style={{ fontSize: 15, fontWeight: 800, color: chargeBalance(charge) > 0 ? "var(--ink-900)" : "var(--green)" }}>
+                יתרה: {chargeBalance(charge) > 0 ? `₪${fmt(chargeBalance(charge))}` : "0 ✓"}
+              </div>
+              {onOpenWide && (
+                <button data-focusring onClick={onOpenWide} title="פתח מסך תנועות מלא"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid var(--teal-500)",
+                    background: "var(--teal-50)", color: "var(--teal-700)", borderRadius: 999, padding: "5px 12px",
+                    cursor: "pointer", fontFamily: "var(--font)", fontSize: 12.5, fontWeight: 600 }}>
+                  <Icon name="receipt" size={14} color="var(--teal-600)"/> מסך תנועות מלא
+                </button>
+              )}
             </div>
           </div>
           {charge.txns && TXNS[charge.txns]

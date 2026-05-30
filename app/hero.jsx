@@ -128,7 +128,16 @@ function AlertsCard({ notesCount, docsCount, onNotes, onDocs, onEnforce }) {
   );
 }
 
+// AIStrip — a single AI "insight bar". Instead of repeating the full insights
+// list (that lives in the left column's תובנות card), it surfaces the single
+// highest-severity insight in full, with a count of the rest — no truncation.
+const INSIGHT_SEVERITY = { crit: 0, warn: 1, good: 2 };
 function AIStrip({ insights, onCopilot }) {
+  const sorted = [...insights].sort((a, b) => (INSIGHT_SEVERITY[a.tone] ?? 9) - (INSIGHT_SEVERITY[b.tone] ?? 9));
+  const lead = sorted[0];
+  const rest = sorted.length - 1;
+  const toneFg = { warn: "var(--warn-fg)", good: "var(--ok-fg)", crit: "var(--err-fg)" };
+  const toneBg = { warn: "var(--warn-bg)", good: "var(--ok-bg)", crit: "var(--err-bg)" };
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", borderRadius: 16,
       background: "var(--white)", border: "1px solid var(--ink-100)",
@@ -140,19 +149,23 @@ function AIStrip({ insights, onCopilot }) {
         </div>
         <span style={{ fontSize: 13, fontWeight: 700, color: "var(--teal-700)" }}>תובנות AI</span>
       </div>
-      <div style={{ display: "flex", gap: 9, flex: 1, overflowX: "auto", paddingBottom: 1 }}>
-        {insights.map(ins => {
-          const c = { warn: "var(--amber)", good: "var(--green)", crit: "var(--red)" }[ins.tone];
-          return (
-            <div key={ins.id} title={ins.source} style={{ display: "flex", alignItems: "center", gap: 8, flex: "none",
-              background: "var(--white)", border: "1px solid var(--ink-200)", borderRadius: 999, padding: "6px 13px",
-              fontSize: 12.5, color: "var(--ink-700)", maxWidth: 420 }}>
-              <Icon name={ins.icon} size={14} color={c}/>
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ins.text}</span>
-            </div>
-          );
-        })}
-      </div>
+      {lead && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+          <span title={lead.source} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center",
+            width: 26, height: 26, borderRadius: 8, flex: "none", background: toneBg[lead.tone] }}>
+            <Icon name={lead.icon} size={15} color={toneFg[lead.tone]}/>
+          </span>
+          <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink-800)", minWidth: 0,
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lead.text}</span>
+          {rest > 0 && (
+            <button data-focusring onClick={onCopilot} style={{ flex: "none", border: "1px solid var(--ink-200)",
+              background: "var(--ink-50)", borderRadius: 999, padding: "4px 11px", cursor: "pointer", fontFamily: "var(--font)",
+              fontSize: 12, fontWeight: 600, color: "var(--ink-600)", whiteSpace: "nowrap" }}>
+              <span className="num">{rest}</span> תובנות נוספות
+            </button>
+          )}
+        </div>
+      )}
       <PillButton size="sm" variant="primary" icon="sparkle" onClick={onCopilot} style={{ flex: "none" }}>פתח Copilot</PillButton>
     </div>
   );

@@ -51,24 +51,24 @@ const SUBJECTS = [
 //   Subjects not listed here auto-generate sub-items from their count/unit.
 const SUBJECT_DETAILS = {
   arnona: { subItems: [
-    { id: "5002205", name: "דירת מגורים", meta: "רחוב הדוגמה 1, דירה 1 · פיזי 5002205", charges: [
+    { id: "5002205", name: "דירת מגורים", meta: "רחוב הדוגמה 1, דירה 1", charges: [
       { id: "arnona",  name: "ארנונה",            txns: "arnona" },
       { id: "shmira",  name: "אגרת שמירה",        txns: "shmira" },
       { id: "sewage",  name: "אגרת ביוב",         txns: "sewage" },
       { id: "collect", name: "הוצ' גבייה (מילגם)", txns: "collect" },
     ] },
-    { id: "5002206", name: "מחסן", meta: "רחוב הדוגמה 1 · פיזי 5002206", charges: [
+    { id: "5002206", name: "מחסן", meta: "רחוב הדוגמה 1", charges: [
       { id: "arnona_b", name: "ארנונה", balance: 0 },
     ] },
-    { id: "5002207", name: "חניה צמודה", meta: "רחוב הדוגמה 1 · פיזי 5002207", charges: [
+    { id: "5002207", name: "חניה צמודה", meta: "רחוב הדוגמה 1", charges: [
       { id: "arnona_c", name: "ארנונה", balance: 0 },
     ] },
   ] },
   water: { subItems: [
-    { id: "13-88142", name: 'מד מים 2"', meta: "צריכה רבעונית · מונה 13-88142", charges: [
+    { id: "13-88142", name: 'מד מים 2"', meta: "צריכה רבעונית", charges: [
       { id: "water", name: "מים וביוב", txns: "water" },
     ] },
-    { id: "13-88143", name: "מד מים — גינה", meta: "מונה 13-88143", charges: [
+    { id: "13-88143", name: "מד מים — גינה", meta: "גינון / השקיה", charges: [
       { id: "water_b", name: "מים — גינון", balance: 0 },
     ] },
   ] },
@@ -131,6 +131,65 @@ const TXNS = {
   ],
 };
 
+// ── Wide "תנועות למשלם" ledger ───────────────────────────────────────────────
+// A flat, payer-level ledger built from TXNS, enriched with the full column set
+// from the legacy MASTER screen + field dictionary (חוברת1.xlsx):
+// נכס · סוג חיוב · ת.ערך · ת.פעולה · ת.גביה · פרטים · ז/ח · זכות · חובה · ית.מצטברת · מ.גב · בוצע ע"י · מס' פקודה.
+const CHARGE_META = {
+  arnona:  { naxas: "5002205", sug: "ארנונה" },
+  shmira:  { naxas: "5002205", sug: "אגרת שמירה" },
+  sewage:  { naxas: "5002205", sug: "אגרת ביוב" },
+  collect: { naxas: "5002205", sug: "הוצ' גבייה (מילגם)" },
+  water:   { naxas: "13-88142", sug: "מים וביוב" },
+};
+function minusDays(dmy, n) {
+  const [d, m, y] = dmy.split("/").map(Number);
+  const dt = new Date(y, m - 1, d - n);
+  const p = x => String(x).padStart(2, "0");
+  return `${p(dt.getDate())}/${p(dt.getMonth() + 1)}/${dt.getFullYear()}`;
+}
+const LEDGER = Object.entries(CHARGE_META).flatMap(([key, meta]) =>
+  (TXNS[key] || []).map((r, i) => {
+    const credit = r.dc === "ז";
+    const amount = r.nominal || r.addon || 0;
+    const system = r.type === 31 || r.type === 8;
+    return {
+      id: `${key}-${i}`,
+      naxas: meta.naxas,
+      sug: meta.sug,
+      sugKey: key,
+      terech: r.date,                                  // ת. ערך
+      tpeula: minusDays(r.date, r.type === 8 ? 0 : 1), // ת. פעולה
+      tgviya: credit ? r.date : "—",                   // ת. גבייה (לזכות בלבד)
+      peratim: r.ref && r.ref !== "—" ? r.ref : TXN_TYPES[r.type],
+      type: r.type,
+      dc: r.dc,
+      zchut: credit ? amount : null,
+      chova: credit ? null : amount,
+      itra: r.bal,                                     // ית. מצטברת (לכל סוג חיוב)
+      magav: credit ? "55" : "23",                     // קוד מ.גב
+      user: system ? "מערכת" : credit ? "hsv_hug" : "שמעון עמר",
+      pkuda: credit ? `69${9000 + i * 13}` : r.type === 44 ? "44120" : "—",
+      fyr: Number(r.date.split("/")[2]),
+    };
+  })
+);
+const LEDGER_COLUMNS = [
+  { key: "naxas",   label: "נכס",         align: "start", w: 96,  num: true },
+  { key: "sug",     label: "סוג חיוב",    align: "start", w: 150 },
+  { key: "terech",  label: "ת. ערך",      align: "start", w: 92,  num: true },
+  { key: "tpeula",  label: "ת. פעולה",    align: "start", w: 92,  num: true },
+  { key: "tgviya",  label: "ת. גבייה",    align: "start", w: 92,  num: true },
+  { key: "peratim", label: "פרטים",       align: "start", w: 170 },
+  { key: "dc",      label: "ז/ח",         align: "center", w: 52 },
+  { key: "zchut",   label: "זכות",        align: "end",   w: 96,  num: true, money: true },
+  { key: "chova",   label: "חובה",        align: "end",   w: 96,  num: true, money: true },
+  { key: "itra",    label: "ית. מצטברת",  align: "end",   w: 110, num: true, money: true },
+  { key: "magav",   label: "מ.גב",        align: "center", w: 60, num: true },
+  { key: "user",    label: "בוצע ע\"י",   align: "start", w: 110 },
+  { key: "pkuda",   label: "מס' פקודה",   align: "start", w: 100, num: true },
+];
+
 const YEARS = Array.from({ length: 2026 - 2007 + 1 }, (_, i) => 2026 - i);
 
 const AI_INSIGHTS = [
@@ -178,5 +237,5 @@ function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
 
 export {
   PAYER, ENTITIES, SUBJECTS, SUBJECT_DETAILS, SERVICES, TOTALS, TXNS, TXN_TYPES, YEARS,
-  AI_INSIGHTS, AI_ACTIONS, QUICK_ACTIONS, NOTES, DOCUMENTS, fmt,
+  AI_INSIGHTS, AI_ACTIONS, QUICK_ACTIONS, NOTES, DOCUMENTS, LEDGER, LEDGER_COLUMNS, fmt,
 };

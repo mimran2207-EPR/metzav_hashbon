@@ -57,6 +57,9 @@ button{ font-family:inherit; }
 @keyframes muSpin{ to{ transform:rotate(360deg) } }
 @keyframes muPulse{ 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
 .mu-rise{ animation:muRise .28s ease both; }
+.mu-txrow{ transition:background .12s ease; }
+.mu-txrow:hover{ background:var(--ink-50); }
+.mu-ph-light::placeholder{ color:rgba(255,255,255,.7); }
 [data-focusring]:focus-visible{ outline:none; box-shadow:var(--shadow-focus); border-radius:8px; }
 
 /* ── Pressed/active feedback for all focusable controls ───────────── */
