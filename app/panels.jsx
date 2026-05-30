@@ -31,7 +31,6 @@ function CollapsibleCard({ title, sub, icon, defaultOpen = true, cardStyle, chil
 
 function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" }) {
   const showInsights = mode !== "subtle";
-  const showHistory = mode !== "subtle";
   const bold = mode === "bold";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -99,24 +98,6 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
           ))}
         </div>
       </CollapsibleCard>
-
-      {showHistory && (
-      <CollapsibleCard title="משלמים היסטוריים" icon="history" defaultOpen={false}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-          {[{ n: "לדוגמה ישראל (קודם)", no: "888-DEMO-1", y: "2008–2014" }, { n: "לדוגמה רחל", no: "888-DEMO-2", y: "2014–2019" }].map((h, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 999, background: "var(--ink-100)", color: "var(--ink-500)", display: "grid", placeItems: "center", flex: "none" }}>
-                <Icon name="user" size={15} color="var(--ink-500)"/>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, color: "var(--ink-800)" }}>{h.n}</div>
-                <div style={{ fontSize: 11.5, color: "var(--ink-500)" }}><span className="num">{h.no}</span> · {h.y}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CollapsibleCard>
-      )}
     </div>
   );
 }

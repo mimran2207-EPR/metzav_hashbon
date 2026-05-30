@@ -51,26 +51,50 @@ const SUBJECTS = [
 //   Subjects not listed here auto-generate sub-items from their count/unit.
 const SUBJECT_DETAILS = {
   arnona: { subItems: [
-    { id: "5002205", name: "דירת מגורים", meta: "רחוב הדוגמה 1, דירה 1", charges: [
-      { id: "arnona",  name: "ארנונה",            txns: "arnona" },
-      { id: "shmira",  name: "אגרת שמירה",        txns: "shmira" },
-      { id: "sewage",  name: "אגרת ביוב",         txns: "sewage" },
-      { id: "collect", name: "הוצ' גבייה (מילגם)", txns: "collect" },
-    ] },
-    { id: "5002206", name: "מחסן", meta: "רחוב הדוגמה 1", charges: [
-      { id: "arnona_b", name: "ארנונה", balance: 0 },
-    ] },
-    { id: "5002207", name: "חניה צמודה", meta: "רחוב הדוגמה 1", charges: [
-      { id: "arnona_c", name: "ארנונה", balance: 0 },
-    ] },
+    { id: "5002205", name: "דירת מגורים", meta: "רחוב הדוגמה 1, דירה 1",
+      holders: [
+        { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "רכישה" },
+        { name: "לדוגמה רחל", payerNo: "888-DEMO-2", from: "03/2014", to: "10/2019", reason: "מכירה" },
+        { name: "ישראל לדוגמה (קודם)", payerNo: "888-DEMO-1", from: "08/2008", to: "03/2014", reason: "ירושה" },
+      ],
+      charges: [
+        { id: "arnona",  name: "ארנונה",            txns: "arnona" },
+        { id: "shmira",  name: "אגרת שמירה",        txns: "shmira" },
+        { id: "sewage",  name: "אגרת ביוב",         txns: "sewage" },
+        { id: "collect", name: "הוצ' גבייה (מילגם)", txns: "collect" },
+      ] },
+    { id: "5002206", name: "מחסן", meta: "רחוב הדוגמה 1",
+      holders: [
+        { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "רכישה" },
+        { name: "כהן דוד", payerNo: "028841200", from: "05/2011", to: "10/2019", reason: "מכירה" },
+      ],
+      charges: [
+        { id: "arnona_b", name: "ארנונה", balance: 0 },
+      ] },
+    { id: "5002207", name: "חניה צמודה", meta: "רחוב הדוגמה 1",
+      holders: [
+        { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "צמוד לדירה" },
+      ],
+      charges: [
+        { id: "arnona_c", name: "ארנונה", balance: 0 },
+      ] },
   ] },
   water: { subItems: [
-    { id: "13-88142", name: 'מד מים 2"', meta: "צריכה רבעונית", charges: [
-      { id: "water", name: "מים וביוב", txns: "water" },
-    ] },
-    { id: "13-88143", name: "מד מים — גינה", meta: "גינון / השקיה", charges: [
-      { id: "water_b", name: "מים — גינון", balance: 0 },
-    ] },
+    { id: "13-88142", name: 'מד מים 2"', meta: "צריכה רבעונית",
+      holders: [
+        { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "החלפת מחזיק" },
+        { name: "לדוגמה רחל", payerNo: "888-DEMO-2", from: "03/2014", to: "10/2019", reason: "החלפת מחזיק" },
+      ],
+      charges: [
+        { id: "water", name: "מים וביוב", txns: "water" },
+      ] },
+    { id: "13-88143", name: "מד מים — גינה", meta: "גינון / השקיה",
+      holders: [
+        { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "התקנה" },
+      ],
+      charges: [
+        { id: "water_b", name: "מים — גינון", balance: 0 },
+      ] },
   ] },
 };
 

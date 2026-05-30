@@ -96,7 +96,7 @@ function Crumb({ label, kind, onClick, last }) {
     </span>
   );
 }
-function DrillRow({ icon, title, badge, meta, balance, count, countLabel, onClick }) {
+function DrillRow({ icon, title, badge, meta, balance, count, countLabel, holders, onClick }) {
   const paid = (balance || 0) <= 0;
   return (
     <button data-focusring onClick={onClick} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "12px 14px" }}>
@@ -110,6 +110,7 @@ function DrillRow({ icon, title, badge, meta, balance, count, countLabel, onClic
           {badge && <span className="num" style={{ fontSize: 10.5, fontWeight: 600, color: "var(--teal-700)", background: "var(--teal-50)",
             border: "1px solid var(--teal-100)", borderRadius: 6, padding: "1px 7px" }}>{badge}</span>}
           {count != null && <Chip tone="gray" style={{ fontSize: 10 }}><span className="num">{count}</span> {countLabel}</Chip>}
+          {holders > 1 && <Chip tone="gray" style={{ fontSize: 10 }}><Icon name="history" size={11} color="var(--ink-500)"/> <span className="num">{holders}</span> מחזיקים</Chip>}
         </div>
         {meta && <div style={{ fontSize: 11.5, color: "var(--ink-500)", marginTop: 1 }}>{meta}</div>}
       </div>
@@ -118,6 +119,49 @@ function DrillRow({ icon, title, badge, meta, balance, count, countLabel, onClic
       </div>
       <Icon name="chevleft" size={16} color="var(--ink-300)"/>
     </button>
+  );
+}
+
+// HolderHistory — "משלמים היסטוריים" scoped to a single פיזי (property): the
+// chain of holders who were the payer for this property over time.
+function HolderHistory({ holders, naxasId }) {
+  if (!holders || !holders.length) return null;
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 9 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 8, flex: "none", display: "grid", placeItems: "center",
+          background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", boxShadow: "0 3px 8px rgba(42,167,184,.3)" }}>
+          <Icon name="history" size={16} color="#fff"/>
+        </div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>משלמים היסטוריים לנכס</div>
+          <div style={{ fontSize: 11.5, color: "var(--ink-500)" }}>שרשרת מחזיקים · פיזי <span className="num">{naxasId}</span></div>
+        </div>
+      </div>
+      <div style={{ border: "1px solid var(--ink-200)", borderRadius: 11, overflow: "hidden" }}>
+        {holders.map((h, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 13px",
+            background: h.current ? "var(--teal-50)" : "#fff", borderBottom: i < holders.length - 1 ? "1px solid var(--ink-100)" : "none" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 999, flex: "none", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700,
+              background: h.current ? "var(--teal-500)" : "var(--ink-100)", color: h.current ? "#fff" : "var(--ink-500)" }}>
+              {h.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-800)" }}>{h.name}</span>
+                {h.current ? <Chip tone="green" style={{ fontSize: 10 }}>מחזיק נוכחי</Chip> : <Chip tone="gray" style={{ fontSize: 10 }}>מחזיק קודם</Chip>}
+              </div>
+              <div style={{ fontSize: 11.5, color: "var(--ink-500)" }}>
+                משלם <span className="num">{h.payerNo}</span>{h.reason ? ` · ${h.reason}` : ""}
+              </div>
+            </div>
+            <div className="num" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink-600)", flex: "none", whiteSpace: "nowrap" }}>
+              {h.from} – {h.to || "היום"}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -148,22 +192,25 @@ function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSel
           <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>{subject.unit} ({subItems.length})</div>
           {subItems.map(si => (
             <DrillRow key={si.id} icon={subject.icon} title={si.name} badge={authored ? `פיזי ${si.id}` : null} meta={si.meta}
-              count={si.charges.length} countLabel="סוגי חיוב" balance={subItemBalance(si)}
+              count={si.charges.length} countLabel="סוגי חיוב" holders={si.holders ? si.holders.length : 0} balance={subItemBalance(si)}
               onClick={() => onSelectSubItem(si.id)}/>
           ))}
         </div>
       )}
 
-      {/* level 3 — charge types */}
+      {/* level 3 — charge types + property holder history */}
       {subItem && !charge && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>סוגי חיוב ({charges.length})</div>
-          {charges.map(c => (
-            <DrillRow key={c.id} icon="receipt" title={c.name}
-              meta={c.txns ? `${(TXNS[c.txns] || []).length} תנועות` : "אין תנועות"} balance={chargeBalance(c)}
-              onClick={() => onSelectCharge(c.id)}/>
-          ))}
-        </div>
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>סוגי חיוב ({charges.length})</div>
+            {charges.map(c => (
+              <DrillRow key={c.id} icon="receipt" title={c.name}
+                meta={c.txns ? `${(TXNS[c.txns] || []).length} תנועות` : "אין תנועות"} balance={chargeBalance(c)}
+                onClick={() => onSelectCharge(c.id)}/>
+            ))}
+          </div>
+          <HolderHistory holders={subItem.holders} naxasId={subItem.id}/>
+        </>
       )}
 
       {/* level 4 — account status */}
