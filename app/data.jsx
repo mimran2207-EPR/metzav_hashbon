@@ -52,6 +52,11 @@ const SUBJECTS = [
 const SUBJECT_DETAILS = {
   arnona: { subItems: [
     { id: "5002205", name: "דירת מגורים", meta: "רחוב הדוגמה 1, דירה 1",
+      propertyTypes: [
+        { code: "100", desc: "בית מגורים",    area: 85,  unit: 'מ"ר' },
+        { code: "150", desc: "חניה פרטית",    area: 12,  unit: 'מ"ר' },
+        { code: "190", desc: "מחסן בניין",    area: 8,   unit: 'מ"ר' },
+      ],
       holders: [
         { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "רכישה" },
         { name: "לדוגמה רחל", payerNo: "888-DEMO-2", from: "03/2014", to: "10/2019", reason: "מכירה" },
@@ -64,6 +69,9 @@ const SUBJECT_DETAILS = {
         { id: "collect", name: "הוצ' גבייה (מילגם)", txns: "collect" },
       ] },
     { id: "5002206", name: "מחסן", meta: "רחוב הדוגמה 1",
+      propertyTypes: [
+        { code: "190", desc: "מחסן / אחסנה",  area: 18,  unit: 'מ"ר' },
+      ],
       holders: [
         { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "רכישה" },
         { name: "כהן דוד", payerNo: "028841200", from: "05/2011", to: "10/2019", reason: "מכירה" },
@@ -72,6 +80,9 @@ const SUBJECT_DETAILS = {
         { id: "arnona_b", name: "ארנונה", balance: 0 },
       ] },
     { id: "5002207", name: "חניה צמודה", meta: "רחוב הדוגמה 1",
+      propertyTypes: [
+        { code: "150", desc: "חניה פרטית",    area: 14,  unit: 'מ"ר' },
+      ],
       holders: [
         { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "צמוד לדירה" },
       ],
@@ -81,6 +92,9 @@ const SUBJECT_DETAILS = {
   ] },
   water: { subItems: [
     { id: "13-88142", name: 'מד מים 2"', meta: "צריכה רבעונית",
+      propertyTypes: [
+        { code: "W02", desc: 'מד מים 2"',     area: null, unit: "יח'" },
+      ],
       holders: [
         { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "החלפת מחזיק" },
         { name: "לדוגמה רחל", payerNo: "888-DEMO-2", from: "03/2014", to: "10/2019", reason: "החלפת מחזיק" },
@@ -89,6 +103,9 @@ const SUBJECT_DETAILS = {
         { id: "water", name: "מים וביוב", txns: "water" },
       ] },
     { id: "13-88143", name: "מד מים — גינה", meta: "גינון / השקיה",
+      propertyTypes: [
+        { code: "W01", desc: "מד מים גינה",   area: null, unit: "יח'" },
+      ],
       holders: [
         { name: "ישראל לדוגמה", payerNo: "999-DEMO", from: "10/2019", to: null, current: true, reason: "התקנה" },
       ],
