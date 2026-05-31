@@ -207,17 +207,24 @@ function YearNavigator({ year, onYear }) {
                 aria-label={`שנת ${y}${hasDebt ? ` — יתרת חוב ₪${fmt(balance)}` : " — סגור"}`}
                 aria-current={isCurrent ? "page" : undefined}
                 style={{
-                  position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                  position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
                   border: isCurrent ? "1.5px solid var(--teal-500)" : "1px solid var(--ink-200)",
                   background: isCurrent ? "var(--teal-50)" : "var(--white)", borderRadius: 10,
-                  padding: "8px 14px 6px",
+                  padding: "7px 12px 5px",
                   cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: isCurrent ? 700 : 600,
                   color: isCurrent ? "var(--teal-700)" : "var(--ink-600)", transition: "all .15s ease",
-                  minWidth: 60 }}>
-                <span className="num">{y}</span>
-                {/* Debt indicator: coloured bar at the bottom — wider and more visible than a tiny dot */}
+                  minWidth: 64 }}>
+                <span className="num" style={{ fontSize: 13 }}>{y}</span>
+                {/* Balance amount — always shown, red if debt, green/gray if settled */}
+                <span className="num" style={{
+                  fontSize: 10.5, fontWeight: 700, lineHeight: 1,
+                  color: hasDebt ? "var(--red)" : "var(--ink-400)"
+                }}>
+                  {hasDebt ? `₪${fmt(balance)}` : "0 ✓"}
+                </span>
+                {/* Colour bar */}
                 <span style={{
-                  display: "block", height: 3, width: hasDebt ? "70%" : "70%", borderRadius: 2,
+                  display: "block", height: 2.5, width: "80%", borderRadius: 2, marginTop: 2,
                   background: hasDebt ? "var(--red)" : "var(--ink-200)",
                   transition: "background .2s ease"
                 }}/>

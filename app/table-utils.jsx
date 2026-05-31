@@ -3,26 +3,32 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Icon } from './icons.jsx';
 
-// ── Sort ─────────────────────────────────────────────────────────────────────
+// ── Sort — 3-state cycle: none → asc ▲ → desc ▼ → none ─────────────────────
 export function useColSort() {
-  const [col, setCol] = useState(null);
-  const [dir, setDir] = useState("asc");
-  const toggle = useCallback((key) => {
-    setCol(prev => {
-      if (prev === key) { setDir(d => d === "asc" ? "desc" : "asc"); return key; }
-      setDir("asc"); return key;
+  // single state object so the transition is always atomic
+  const [state, setState] = useState({ col: null, dir: null });
+
+  const toggleSort = useCallback((key) => {
+    setState(prev => {
+      if (prev.col !== key)           return { col: key, dir: "asc"  }; // new col → asc
+      if (prev.dir === "asc")         return { col: key, dir: "desc" }; // asc → desc
+      /* dir === "desc" → cancel */   return { col: null, dir: null  }; // desc → clear
     });
   }, []);
+
   const applySort = useCallback((arr, getVal) => {
-    if (!col || !getVal) return arr;
+    if (!state.col || !state.dir || !getVal) return arr;
     return [...arr].sort((a, b) => {
-      const va = getVal(a, col), vb = getVal(b, col);
+      const va = getVal(a, state.col), vb = getVal(b, state.col);
       if (va == null) return 1; if (vb == null) return -1;
-      const cmp = typeof va === "string" ? va.localeCompare(vb, "he") : (va < vb ? -1 : va > vb ? 1 : 0);
-      return dir === "asc" ? cmp : -cmp;
+      const cmp = typeof va === "string"
+        ? va.localeCompare(vb, "he")
+        : (va < vb ? -1 : va > vb ? 1 : 0);
+      return state.dir === "asc" ? cmp : -cmp;
     });
-  }, [col, dir]);
-  return { sortCol: col, sortDir: dir, toggleSort: toggle, applySort };
+  }, [state]);
+
+  return { sortCol: state.col, sortDir: state.dir, toggleSort, applySort };
 }
 
 // ── Drag-to-reorder ───────────────────────────────────────────────────────────
@@ -53,25 +59,31 @@ export function useColOrder(count) {
 
 // ── SortTh — sortable + draggable <th> ───────────────────────────────────────
 export function SortTh({ colKey, label, align, sortable, sortCol, sortDir, onSort, dragHandlers, isDragOver, style }) {
-  const isSorted = sortable && sortCol === colKey;
+  const isSorted = sortable && sortCol === colKey && sortDir;
+  // title tooltip explains the NEXT action on click
+  const nextAction = !isSorted ? "לחץ למיון עולה ▲"
+    : sortDir === "asc"  ? "לחץ למיון יורד ▼"
+    :                      "לחץ לביטול מיון";
   return (
     <th onClick={sortable ? () => onSort(colKey) : undefined}
       {...dragHandlers}
+      title={sortable ? nextAction : "גרור לשינוי מיקום"}
       style={{ textAlign: align || "start", padding: "9px 10px", fontSize: 11.5, fontWeight: 700,
         color: "rgba(255,255,255,.95)", whiteSpace: "nowrap", overflow: "hidden",
         cursor: sortable ? "pointer" : "grab",
-        background: isDragOver ? "rgba(255,255,255,.22)" : "transparent",
+        background: isSorted ? "rgba(255,255,255,.15)" : isDragOver ? "rgba(255,255,255,.22)" : "transparent",
         borderInlineEnd: isDragOver ? "2px solid rgba(255,255,255,.8)" : "2px solid transparent",
         userSelect: "none", transition: "background .12s",
         ...style }}>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
         {label}
         {sortable && (
-          <span style={{ fontSize: 9, opacity: isSorted ? 1 : 0.35 }}>
-            {isSorted ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}
+          <span style={{ display: "inline-flex", flexDirection: "column", gap: 0, lineHeight: 1, opacity: isSorted ? 1 : 0.35 }}>
+            <span style={{ fontSize: 8, lineHeight: 1, color: isSorted && sortDir === "asc"  ? "#fff" : "rgba(255,255,255,.5)" }}>▲</span>
+            <span style={{ fontSize: 8, lineHeight: 1, color: isSorted && sortDir === "desc" ? "#fff" : "rgba(255,255,255,.5)" }}>▼</span>
           </span>
         )}
-        {!sortable && label && <span style={{ fontSize: 9, opacity: 0.3, marginInlineStart: 2 }}>⣿</span>}
+        {!sortable && label && <span style={{ fontSize: 9, opacity: 0.25, marginInlineStart: 1 }}>⠿</span>}
       </span>
     </th>
   );
