@@ -34,15 +34,15 @@ const SERVICES = [
 // `id` matches SERVICES.subject so selecting a subject filters the balances table.
 function subjectBalance(id) { return SERVICES.filter(s => s.subject === id).reduce((a, s) => a + s.balance, 0); }
 const SUBJECTS = [
-  { id: "arnona",      name: "ארנונה",   icon: "building",    count: 3, unit: "נכסים",   get balance(){ return subjectBalance("arnona"); } },
-  { id: "water",       name: "מים וביוב", icon: "droplet",     count: 2, unit: "מדי מים", get balance(){ return subjectBalance("water"); } },
-  { id: "education",   name: "חינוך",     icon: "education",   count: 2, unit: "ילדים",   balance: 0 },
-  { id: "parking",     name: "חניה",      icon: "parking",     count: 5, unit: "דוחות",   balance: 740 },
-  { id: "signage",     name: "שילוט",     icon: "signage",     count: 1, unit: "שלט",     balance: 0 },
-  { id: "clubs",       name: "חוגים",     icon: "clubs",       count: 3, unit: "רישומים", balance: 180 },
-  { id: "welfare",     name: "רווחה",     icon: "welfare",     count: 1, unit: "תיק",     balance: 0 },
-  { id: "engineering", name: "הנדסה",     icon: "engineering", count: 1, unit: "היתר",    balance: 0 },
-  { id: "supervision", name: "פיקוח",     icon: "supervision", count: 1, unit: "תיק",     balance: 0 },
+  { id: "arnona",      code:  3, name: "ארנונה",   icon: "building",    count: 3, unit: "נכסים",   get balance(){ return subjectBalance("arnona"); } },
+  { id: "water",       code: 13, name: "מים וביוב", icon: "droplet",     count: 2, unit: "מדי מים", get balance(){ return subjectBalance("water"); } },
+  { id: "education",   code:  4, name: "חינוך",     icon: "education",   count: 2, unit: "ילדים",   balance: 0 },
+  { id: "parking",     code:  5, name: "חניה",      icon: "parking",     count: 5, unit: "דוחות",   balance: 740 },
+  { id: "signage",     code: 15, name: "שילוט",     icon: "signage",     count: 1, unit: "שלט",     balance: 0 },
+  { id: "clubs",       code:  6, name: "חוגים",     icon: "clubs",       count: 3, unit: "רישומים", balance: 180 },
+  { id: "welfare",     code:  7, name: "רווחה",     icon: "welfare",     count: 1, unit: "תיק",     balance: 0 },
+  { id: "engineering", code:  8, name: "הנדסה",     icon: "engineering", count: 1, unit: "היתר",    balance: 0 },
+  { id: "supervision", code:  9, name: "פיקוח",     icon: "supervision", count: 1, unit: "תיק",     balance: 0 },
 ];
 
 // SUBJECT_DETAILS — drill-down tree:  subject → subItems (תתי-נושאים)
