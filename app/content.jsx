@@ -1,81 +1,9 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { Icon } from './icons.jsx';
 import { Chip, Segmented } from './ui.jsx';
 import { fmt, SUBJECT_DETAILS, TXNS, QUICK_ACTIONS } from './data.jsx';
+import { useColSort, useColOrder, SortTh, ColumnPicker, useColVisibility } from './table-utils.jsx';
 import s from './ui.module.css';
-
-// ── Shared table utilities ────────────────────────────────────────────────
-
-// useColSort — manages sort column + direction state.
-function useColSort() {
-  const [col, setCol] = useState(null);
-  const [dir, setDir] = useState("asc");
-  const toggle = useCallback((key) => {
-    setCol(prev => { if (prev === key) { setDir(d => d === "asc" ? "desc" : "asc"); return key; } setDir("asc"); return key; });
-  }, []);
-  const sort = useCallback((arr, getVal) => {
-    if (!col || !getVal) return arr;
-    return [...arr].sort((a, b) => {
-      const va = getVal(a, col), vb = getVal(b, col);
-      if (va == null) return 1; if (vb == null) return -1;
-      const cmp = typeof va === "string" ? va.localeCompare(vb, "he") : (va < vb ? -1 : va > vb ? 1 : 0);
-      return dir === "asc" ? cmp : -cmp;
-    });
-  }, [col, dir]);
-  return { sortCol: col, sortDir: dir, toggleSort: toggle, applySort: sort };
-}
-
-// useColOrder — manages drag-to-reorder for N columns.
-function useColOrder(count) {
-  const [order, setOrder] = useState(() => Array.from({ length: count }, (_, i) => i));
-  const dragging = useRef(null);
-  const [dragOver, setDragOver] = useState(null);
-  const handlers = useCallback((i) => ({
-    draggable: true,
-    onDragStart: (e) => { dragging.current = i; e.dataTransfer.effectAllowed = "move"; },
-    onDragOver:  (e) => { e.preventDefault(); setDragOver(i); },
-    onDragLeave: ()  => setDragOver(null),
-    onDrop:      (e) => {
-      e.preventDefault(); setDragOver(null);
-      if (dragging.current === null || dragging.current === i) return;
-      setOrder(prev => {
-        const next = [...prev];
-        const from = next.indexOf(dragging.current);
-        const to   = next.indexOf(i);
-        next.splice(from, 1); next.splice(to, 0, dragging.current);
-        return next;
-      });
-      dragging.current = null;
-    },
-  }), []);
-  return { order, setOrder, dragOver, handlers };
-}
-
-// SortTh — a <th> that is sortable (click) + draggable (drag to reorder).
-function SortTh({ colKey, label, align, sortable, sortCol, sortDir, onSort, dragHandlers, isDragOver, style, children }) {
-  const isSorted = sortable && sortCol === colKey;
-  return (
-    <th onClick={sortable ? () => onSort(colKey) : undefined}
-      {...dragHandlers}
-      style={{ textAlign: align || "start", padding: "9px 10px", fontSize: 11.5, fontWeight: 700,
-        color: "rgba(255,255,255,.95)", whiteSpace: "nowrap", overflow: "hidden",
-        cursor: sortable ? "pointer" : "grab",
-        background: isDragOver ? "rgba(255,255,255,.25)" : "transparent",
-        borderInlineEnd: isDragOver ? "2px solid rgba(255,255,255,.8)" : "2px solid transparent",
-        userSelect: "none", transition: "background .12s",
-        ...style }}>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-        {label || children}
-        {sortable && (
-          <span style={{ fontSize: 9, opacity: isSorted ? 1 : 0.35, color: isSorted ? "#fff" : "rgba(255,255,255,.6)" }}>
-            {isSorted ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}
-          </span>
-        )}
-        {!sortable && <span style={{ fontSize: 9, opacity: 0.3, marginInlineStart: 2 }}>⣿</span>}
-      </span>
-    </th>
-  );
-}
 
 // SubjectCard — one subject in the carousel.
 function SubjectCard({ sub, active, onSelect }) {
@@ -534,6 +462,7 @@ function TxnTable({ rows, types, compact }) {
   const [q, setQ] = useState("");
   const [dc, setDc] = useState("all");
   const { sortCol: t3Sort, sortDir: t3Dir, toggleSort: t3Toggle, applySort: t3Apply } = useColSort();
+  const { hidden: t3Hidden, toggleCol: t3ToggleCol } = useColVisibility();
   const T3_COLS = [
     { key:"date",  label:"תאריך",       align:"start", sortable:true },
     { key:"type",  label:"סוג תנועה",   align:"start", sortable:true },
@@ -544,7 +473,7 @@ function TxnTable({ rows, types, compact }) {
     { key:"bal",   label:"יתרה רצה",    align:"end",   sortable:true },
   ];
   const { order: t3Order, dragOver: t3DragOver, handlers: t3DragH } = useColOrder(T3_COLS.length);
-  const orderedT3 = t3Order.map(i => T3_COLS[i]);
+  const orderedT3 = t3Order.map(i => T3_COLS[i]).filter(c => !t3Hidden.has(c.key));
 
   const t3SortVal = (r, key) => {
     if (key === "date")  { const [d,m,y] = r.date.split("/"); return +new Date(+y, +m-1, +d); }
@@ -591,6 +520,7 @@ function TxnTable({ rows, types, compact }) {
         <Segmented size="sm" value={dc} onChange={setDc} options={[{ value: "all", label: "הכל" }, { value: "ח", label: "חובה" }, { value: "ז", label: "זכות" }]}/>
         <div style={{ flex: 1 }}/>
         <span style={{ fontSize: 12, color: "var(--ink-muted)" }}><span className="num">{sortedFiltered.length}</span> שורות</span>
+        <ColumnPicker cols={T3_COLS} hidden={t3Hidden} onToggle={t3ToggleCol}/>
         <button data-focusring title="ייצוא" onClick={() => window.muToast("מייצא תנועות ל-Excel", "download")}
           style={{ border: "1px solid var(--ink-200)", background: "#fff", borderRadius: 8, padding: "5px 8px", cursor: "pointer", display: "grid", placeItems: "center" }}>
           <Icon name="download" size={15} color="var(--ink-600)"/>
@@ -811,8 +741,9 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
     else { setOpenEntity(id); setOpenCharge(null); }
   };
 
-  // ── Level 1 sort + drag ──
+  // ── Level 1 sort + drag + visibility ──
   const { sortCol, sortDir, toggleSort, applySort } = useColSort();
+  const { hidden: l1Hidden, toggleCol: l1ToggleCol } = useColVisibility();
   // ── Level 2 sort + drag ──
   const { sortCol: l2SortCol, sortDir: l2SortDir, toggleSort: l2Toggle, applySort: l2Sort } = useColSort();
   const L2_MID = [
@@ -858,7 +789,7 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
     { key: "docs",   label: "מסמכים",       w: "72px",  align: "center", sortable: false },
   ];
   const { order: colOrder, dragOver: l1DragOver, handlers: l1DragH } = useColOrder(L1_MID.length);
-  const orderedMid = colOrder.map(i => L1_MID[i]);
+  const orderedMid = colOrder.map(i => L1_MID[i]).filter(c => !l1Hidden.has(c.key));
   const allCols = [{ key:"idx", label:"רץ", w:"40px", align:"center" }, ...orderedMid, { key:"expand", label:"", w:"40px", align:"center" }];
   const colCount = allCols.length;
 
@@ -958,6 +889,10 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
 
   return (
     <>
+    {/* column picker bar */}
+    <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
+      <ColumnPicker cols={L1_MID} hidden={l1Hidden} onToggle={l1ToggleCol}/>
+    </div>
     <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--ink-200)" }}>
       <table style={{ width: "100%", minWidth: 860, borderCollapse: "collapse", fontSize: 13, tableLayout: "fixed" }}>
         <colgroup>
@@ -1023,12 +958,13 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
                             </button>
                           ))}
                           {onOpenWide && (
-                            <button data-focusring onClick={e => { e.stopPropagation(); onOpenWide(); }}
+                            <button data-focusring onClick={e => { e.stopPropagation(); onOpenWide(entity.id); }}
+                              title={`תנועות מלאות לפיזי ${entity.id}`}
                               style={{ display: "inline-flex", alignItems: "center", gap: 5,
                                 border: "1px solid rgba(255,255,255,.4)", background: "rgba(255,255,255,.15)",
                                 color: "#fff", borderRadius: 7, padding: "5px 10px", cursor: "pointer",
                                 fontFamily: "var(--font)", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
-                              <Icon name="receipt" size={13} color="#fff"/> תנועות מלאות
+                              <Icon name="receipt" size={13} color="#fff"/> תנועות מלאות — {entity.id}
                             </button>
                           )}
                         </div>

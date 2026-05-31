@@ -4,9 +4,10 @@
 // in the web language of this app: payer header + quick search, a tab strip,
 // a filter/checkbox panel, and a very wide ledger grid (all columns from the
 // field dictionary) with per-charge grouping + subtotals and payer totals.
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Icon } from './icons.jsx';
 import { LEDGER, LEDGER_COLUMNS, fmt } from './data.jsx';
+import { useColSort, useColOrder, SortTh, ColumnPicker, useColVisibility } from './table-utils.jsx';
 
 const TABS = [
   "הצגת תנועות", "הצגת תשלומים", "נכסים מרוכז", "טיפול בשוברים",
@@ -72,15 +73,24 @@ function Cell({ col, row }) {
   );
 }
 
-function WideTxnScreen({ open, onClose, payer }) {
+function WideTxnScreen({ open, onClose, payer, filterNaxas }) {
   const [tab, setTab] = useState(0);
   const [q, setQ] = useState("");
   const [sug, setSug] = useState("all");
-  const [naxas, setNaxas] = useState("all");
+  const [naxas, setNaxas] = useState(filterNaxas || "all");
   const [dc, setDc] = useState("all");
   const [sort, setSort] = useState("terech");
   const [checks, setChecks] = useState({ "פירוט ריבית והצמדה": true });
   const toggle = (k) => setChecks(c => ({ ...c, [k]: !c[k] }));
+
+  // Sync naxas filter when opened from a specific פיזי
+  useEffect(() => { setNaxas(filterNaxas || "all"); }, [filterNaxas, open]);
+
+  // Sort + drag + column visibility for the ledger table
+  const { sortCol: wSortCol, sortDir: wSortDir, toggleSort: wToggleSort, applySort: wApplySort } = useColSort();
+  const { order: wColOrder, dragOver: wDragOver, handlers: wDragH } = useColOrder(LEDGER_COLUMNS.length);
+  const { hidden: wHidden, toggleCol: wToggleCol } = useColVisibility();
+  const orderedLedgerCols = wColOrder.map(i => LEDGER_COLUMNS[i]).filter(c => !wHidden.has(c.key));
 
   const sugs = useMemo(() => [...new Set(LEDGER.map(r => r.sug))], []);
   const naxasim = useMemo(() => [...new Set(LEDGER.map(r => r.naxas))], []);
@@ -110,14 +120,28 @@ function WideTxnScreen({ open, onClose, payer }) {
   // group by סוג חיוב unless "ללא חלוקה לסוגי חיוב" is on
   const grouped = !checks["ללא חלוקה לסוגי חיוב"];
   const groups = useMemo(() => {
-    if (!grouped) return [{ sug: null, rows }];
+    const src = wSortCol ? rows : rows; // sortedRows applied per-group below
+    if (!grouped) return [{ sug: null, rows: src }];
     const map = new Map();
-    rows.forEach(r => { if (!map.has(r.sug)) map.set(r.sug, []); map.get(r.sug).push(r); });
+    src.forEach(r => { if (!map.has(r.sug)) map.set(r.sug, []); map.get(r.sug).push(r); });
     return [...map.entries()].map(([sug, rs]) => ({ sug, rows: rs }));
-  }, [rows, grouped]);
+  }, [rows, grouped, wSortCol]);
+
+  // Wide-screen sort value getter
+  const wSortVal = (r, key) => {
+    if (key === "terech" || key === "tpeula" || key === "tgviya") {
+      const d = String(r[key] || "").split("/").map(Number);
+      return d.length === 3 ? d[2]*1e4 + d[1]*1e2 + d[0] : 0;
+    }
+    if (key === "zchut")   return r.zchut || 0;
+    if (key === "chova")   return r.chova || 0;
+    if (key === "itra")    return r.itra || 0;
+    return r[key] || "";
+  };
+  const sortedRows = wApplySort(rows, (r, key) => wSortVal(r, key));
 
   if (!open) return null;
-  const minW = LEDGER_COLUMNS.reduce((a, c) => a + c.w, 0);
+  const minW = orderedLedgerCols.reduce((a, c) => a + c.w, 0);
   const selSty = { fontFamily: "var(--font)" };
 
   return (
@@ -209,15 +233,17 @@ function WideTxnScreen({ open, onClose, payer }) {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: minW }}>
             <thead>
               <tr style={{ background: "linear-gradient(135deg,var(--teal-700),var(--teal-800))" }}>
-                {LEDGER_COLUMNS.map(c => (
-                  <th key={c.key} style={{ width: c.w, textAlign: c.align, padding: "10px 12px", fontSize: 11.5, fontWeight: 700,
-                    color: "rgba(255,255,255,.92)", whiteSpace: "nowrap", position: "sticky", top: 0 }}>{c.label}</th>
+                {orderedLedgerCols.map((c, ci) => (
+                  <SortTh key={c.key} colKey={c.key} label={c.label} align={c.align}
+                    sortable={true} sortCol={wSortCol} sortDir={wSortDir} onSort={wToggleSort}
+                    dragHandlers={wDragH(wColOrder[ci])} isDragOver={wDragOver === wColOrder[ci]}
+                    style={{ width: c.w, position: "sticky", top: 0 }}/>
                 ))}
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 && (
-                <tr><td colSpan={LEDGER_COLUMNS.length} style={{ padding: 30, textAlign: "center", color: "var(--ink-400)", fontSize: 13.5 }}>
+                <tr><td colSpan={orderedLedgerCols.length} style={{ padding: 30, textAlign: "center", color: "var(--ink-400)", fontSize: 13.5 }}>
                   אין תנועות התואמות לסינון
                 </td></tr>
               )}
@@ -225,7 +251,7 @@ function WideTxnScreen({ open, onClose, payer }) {
                 <React.Fragment key={g.sug || gi}>
                   {grouped && g.sug && (
                     <tr style={{ background: "var(--teal-50)" }}>
-                      <td colSpan={LEDGER_COLUMNS.length} style={{ padding: "7px 12px", borderBottom: "1px solid var(--teal-100)" }}>
+                      <td colSpan={orderedLedgerCols.length} style={{ padding: "7px 12px", borderBottom: "1px solid var(--teal-100)" }}>
                         <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--teal-700)" }}>{g.sug}</span>
                         <span className="num" style={{ fontSize: 11.5, color: "var(--ink-500)", marginInlineStart: 8 }}>· {g.rows.length} תנועות</span>
                       </td>
@@ -233,7 +259,7 @@ function WideTxnScreen({ open, onClose, payer }) {
                   )}
                   {g.rows.map(r => (
                     <tr key={r.id} className="mu-txrow">
-                      {LEDGER_COLUMNS.map(c => <Cell key={c.key} col={c} row={r}/>)}
+                      {orderedLedgerCols.map(c => <Cell key={c.key} col={c} row={r}/>)}
                     </tr>
                   ))}
                   {grouped && g.sug && (
@@ -256,7 +282,13 @@ function WideTxnScreen({ open, onClose, payer }) {
       {/* ── footer totals ── */}
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: 20, padding: "10px 20px", background: "var(--white)",
         borderTop: "1px solid var(--ink-200)", boxShadow: "0 -6px 16px rgba(18,48,60,.05)" }}>
+        {filterNaxas && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "var(--teal-50)", border: "1px solid var(--teal-200)", borderRadius: 999, padding: "3px 10px", fontSize: 12, fontWeight: 600, color: "var(--teal-700)" }}>
+            <Icon name="building" size={12} color="var(--teal-600)"/> פיזי {filterNaxas}
+          </span>
+        )}
         <span style={{ fontSize: 12.5, color: "var(--ink-500)" }}><span className="num" style={{ fontWeight: 700, color: "var(--ink-800)" }}>{rows.length}</span> תנועות</span>
+        <ColumnPicker cols={LEDGER_COLUMNS} hidden={wHidden} onToggle={wToggleCol}/>
         <div style={{ width: 1, height: 22, background: "var(--ink-200)" }}/>
         <span style={{ fontSize: 13 }}>סך זכות <span className="num" style={{ fontWeight: 700, color: "var(--ok-fg)" }}>₪{fmt(totals.zchut)}</span></span>
         <span style={{ fontSize: 13 }}>סך חובה <span className="num" style={{ fontWeight: 700, color: "var(--ink-800)" }}>₪{fmt(totals.chova)}</span></span>

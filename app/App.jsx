@@ -10,7 +10,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakTogg
 import { SectionHead, Card, Segmented, ToastHost, useMediaQuery } from './ui.jsx';
 import { Icon } from './icons.jsx';
 import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, SUBJECTS, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
-// SERVICES, TXNS kept for compatibility with other components
+import { ThemePicker, THEMES } from './table-utils.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accent": "#2AA7B8",
@@ -41,6 +41,14 @@ function App() {
   const [docsOpen, setDocsOpen] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
   const [wideOpen, setWideOpen] = useState(false);
+  const [wideNaxas, setWideNaxas] = useState(null);
+  const [themeId, setThemeId] = useState("teal");
+
+  // Apply color theme dynamically
+  useEffect(() => {
+    const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+    Object.entries(theme.vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  }, [themeId]);
 
   // ⌘K / Ctrl+K + shortcuts
   // NOTE: we intentionally do NOT hijack Ctrl/⌘+P — overriding the browser's
@@ -101,8 +109,9 @@ function App() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 1360, margin: "0 auto", width: "100%", padding: "16px 24px 0", boxSizing: "border-box" }}>
-        <ActionBar notesCount={notes.length} year={year} onYear={setYear} handlers={handlers}/>
+      <div style={{ maxWidth: 1360, margin: "0 auto", width: "100%", padding: "16px 24px 0", boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ flex: 1 }}><ActionBar notesCount={notes.length} year={year} onYear={setYear} handlers={handlers}/></div>
+        <ThemePicker activeId={themeId} onChange={setThemeId}/>
       </div>
 
       {/* main — full width, sidebar removed; AI is floating */}
@@ -140,7 +149,7 @@ function App() {
                 density={density}
                 txnTypes={TXN_TYPES}
                 onAction={runAction}
-                onOpenWide={() => setWideOpen(true)}/>
+                onOpenWide={(naxas) => { setWideNaxas(naxas || null); setWideOpen(true); }}/>
             </div>
           </Card>
         </div>
@@ -157,7 +166,7 @@ function App() {
       <NotesDrawer open={notesOpen} onClose={() => setNotesOpen(false)} notes={notes} onAdd={addNote}/>
       <DocsDrawer open={docsOpen} onClose={() => setDocsOpen(false)} docs={DOCUMENTS}/>
       <InterestCalc open={calcOpen} onClose={() => setCalcOpen(false)} baseNominal={TOTALS.nominal}/>
-      <WideTxnScreen open={wideOpen} onClose={() => setWideOpen(false)} payer={PAYER}/>
+      <WideTxnScreen open={wideOpen} onClose={() => { setWideOpen(false); setWideNaxas(null); }} payer={PAYER} filterNaxas={wideNaxas}/>
       <ToastHost/>
 
       <TweaksPanel>
