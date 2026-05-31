@@ -19,7 +19,7 @@ function CollapsibleCard({ title, sub, icon, defaultOpen = true, cardStyle, chil
             <Icon name={icon} size={17} color="#fff"/></span>}
           <span style={{ textAlign: "start", minWidth: 0 }}>
             <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: "var(--teal-700)", lineHeight: 1.25 }}>{title}</span>
-            {sub && <span style={{ display: "block", fontSize: 12, color: "var(--ink-500)", marginTop: 2 }}>{sub}</span>}
+            {sub && <span style={{ display: "block", fontSize: 12, color: "var(--ink-muted)", marginTop: 2 }}>{sub}</span>}
           </span>
         </span>
         <Icon name="chevdown" size={18} color="var(--ink-400)" style={{ flex: "none", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}/>
@@ -71,7 +71,7 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
                   </div>
                   <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink-800)" }}>{ins.text}</div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, marginInlineStart: 35, fontSize: 11, color: "var(--ink-500)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, marginInlineStart: 35, fontSize: 11, color: "var(--ink-muted)" }}>
                   <Icon name="citation" size={12} color="var(--ink-400)"/>
                   <span>מקור: {ins.source}</span>
                 </div>
@@ -91,7 +91,7 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-800)" }}>{a.label}</div>
-                <div style={{ fontSize: 11.5, color: "var(--ink-500)" }}>{a.hint}</div>
+                <div style={{ fontSize: 11.5, color: "var(--ink-muted)" }}>{a.hint}</div>
               </div>
               <Icon name="chevleft" size={16} color="var(--ink-300)"/>
             </button>
@@ -144,7 +144,7 @@ function CommandBar({ open, onClose, onRun }) {
           <input ref={inputRef} value={q} onChange={e => { setQ(e.target.value); setSel(0); }} onKeyDown={onKey}
             placeholder="חפש משלם, פיזי, פעולה או מסך…" style={{ flex: 1, border: "none", outline: "none", fontFamily: "var(--font)",
             fontSize: 16, color: "var(--ink-900)", background: "transparent" }}/>
-          <kbd style={{ fontFamily: "var(--font)", fontSize: 11.5, fontWeight: 600, color: "var(--ink-500)", background: "var(--ink-50)",
+          <kbd style={{ fontFamily: "var(--font)", fontSize: 11.5, fontWeight: 600, color: "var(--ink-muted)", background: "var(--ink-50)",
             border: "1px solid var(--ink-300)", borderRadius: 6, padding: "2px 7px" }}>ESC</kbd>
         </div>
         <div style={{ maxHeight: 380, overflowY: "auto", padding: "8px 0" }}>
@@ -164,7 +164,7 @@ function CommandBar({ open, onClose, onRun }) {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink-800)" }}>{it.label}</div>
-                      <div style={{ fontSize: 12, color: "var(--ink-500)" }}>{it.hint}</div>
+                      <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>{it.hint}</div>
                     </div>
                     {active && <Icon name="enter" size={16} color="var(--teal-500)"/>}
                   </button>
@@ -174,7 +174,7 @@ function CommandBar({ open, onClose, onRun }) {
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "9px 18px", borderTop: "1px solid var(--ink-100)",
-          background: "var(--ink-50)", fontSize: 11.5, color: "var(--ink-500)" }}>
+          background: "var(--ink-50)", fontSize: 11.5, color: "var(--ink-muted)" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><kbd style={kbdStyle}>↑</kbd><kbd style={kbdStyle}>↓</kbd> ניווט</span>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><kbd style={kbdStyle}>↵</kbd> בחירה</span>
           <div style={{ flex: 1 }}/>

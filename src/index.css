@@ -29,7 +29,11 @@
   --radius-2xl:16px; --radius-pill:999px;
   /* Type scale — mirrors app/tokens.js `font` */
   --text-xs:12px; --text-sm:13px; --text-base:14px; --text-md:15px; --text-lg:16px;
-  --text-xl:17px; --text-2xl:18px; --text-3xl:24px; --text-hero:42px;
+  --text-xl:18px; --text-2xl:20px; --text-3xl:24px; --text-hero:50px;
+  /* Line-height scale */
+  --leading-tight:1.25; --leading-snug:1.4; --leading-normal:1.5; --leading-relaxed:1.65;
+  /* Hebrew body text minimum: Rubik needs ≥13px for legibility in Hebrew */
+  --text-he-min:13px;
 }
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
@@ -74,10 +78,10 @@ button{ font-family:inherit; }
   --ink-muted:#5E7180; /* was ink-500 (~2.3:1) → now ~4.6:1 on white */
 }
 
-/* ── Skip-to-content link (WCAG 2.4.1) ───────────────────────────── */
-.skip-link{ position:absolute; right:-9999px; top:8px; z-index:9999;
+/* ── Skip-to-content link (WCAG 2.4.1) — RTL-safe ────────────────── */
+.skip-link{ position:absolute; inset-inline-end:-9999px; top:8px; z-index:9999;
   background:var(--teal-700); color:#fff; padding:8px 14px; border-radius:8px; font-weight:600; }
-.skip-link:focus{ right:12px; box-shadow:var(--shadow-focus); }
+.skip-link:focus{ inset-inline-end:12px; box-shadow:var(--shadow-focus); }
 
 /* ── Respect reduced-motion preference (WCAG 2.3.3) ──────────────── */
 @media (prefers-reduced-motion: reduce){

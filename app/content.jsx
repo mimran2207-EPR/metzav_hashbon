@@ -48,7 +48,7 @@ function SubjectStrip({ subjects, selected, onSelect }) {
               <div style={entityIcon(selected === "all")}><Icon name="wallet" size={18} color="#fff"/></div>
               <div style={{ textAlign: "start" }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>כל הנושאים</div>
-                <div style={{ fontSize: 11, color: "var(--ink-500)" }}><span className="num">{subjects.length}</span> נושאים פעילים</div>
+                <div style={{ fontSize: 11, color: "var(--ink-muted)" }}><span className="num">{subjects.length}</span> נושאים פעילים</div>
               </div>
             </div>
           </button>
@@ -89,7 +89,7 @@ function Crumb({ label, kind, onClick, last }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
       <span style={{ display: "inline-flex", flexDirection: "column", gap: 1, lineHeight: 1.15, textAlign: "start" }}>
-        {kind && <span style={{ fontSize: 9.5, fontWeight: 600, color: "var(--ink-400)", letterSpacing: ".02em" }}>{kind}</span>}
+        {kind && <span style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-muted)" }}>{kind}</span>}
         {labelEl}
       </span>
       {!last && <Icon name="chevleft" size={14} color="var(--ink-300)"/>}
@@ -112,7 +112,7 @@ function DrillRow({ icon, title, badge, meta, balance, count, countLabel, holder
           {count != null && <Chip tone="gray" style={{ fontSize: 10 }}><span className="num">{count}</span> {countLabel}</Chip>}
           {holders > 1 && <Chip tone="gray" style={{ fontSize: 10 }}><Icon name="history" size={11} color="var(--ink-500)"/> <span className="num">{holders}</span> מחזיקים</Chip>}
         </div>
-        {meta && <div style={{ fontSize: 11.5, color: "var(--ink-500)", marginTop: 1 }}>{meta}</div>}
+        {meta && <div style={{ fontSize: 11.5, color: "var(--ink-muted)", marginTop: 1 }}>{meta}</div>}
       </div>
       <div className="num" style={{ fontSize: 13.5, fontWeight: 700, color: paid ? "var(--green)" : "var(--ink-900)", flex: "none", marginInlineEnd: 4 }}>
         {paid ? "0 ✓" : `₪${fmt(balance)}`}
@@ -135,7 +135,7 @@ function HolderHistory({ holders, naxasId }) {
         </div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink-800)" }}>משלמים היסטוריים לנכס</div>
-          <div style={{ fontSize: 11.5, color: "var(--ink-500)" }}>שרשרת מחזיקים · פיזי <span className="num">{naxasId}</span></div>
+          <div style={{ fontSize: 11.5, color: "var(--ink-muted)" }}>שרשרת מחזיקים · פיזי <span className="num">{naxasId}</span></div>
         </div>
       </div>
       <div style={{ border: "1px solid var(--ink-200)", borderRadius: 11, overflow: "hidden" }}>
@@ -151,7 +151,7 @@ function HolderHistory({ holders, naxasId }) {
                 <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--ink-800)" }}>{h.name}</span>
                 {h.current ? <Chip tone="green" style={{ fontSize: 10 }}>מחזיק נוכחי</Chip> : <Chip tone="gray" style={{ fontSize: 10 }}>מחזיק קודם</Chip>}
               </div>
-              <div style={{ fontSize: 11.5, color: "var(--ink-500)" }}>
+              <div style={{ fontSize: 11.5, color: "var(--ink-muted)" }}>
                 משלם <span className="num">{h.payerNo}</span>{h.reason ? ` · ${h.reason}` : ""}
               </div>
             </div>
@@ -189,7 +189,7 @@ function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSel
       {/* level 2 — sub-items (נכסים / מדי מים / ילדים…) */}
       {!subItem && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>{subject.unit} ({subItems.length})</div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)", fontWeight: 600, marginBottom: 4 }}>{subject.unit} ({subItems.length})</div>
           {subItems.map(si => (
             <DrillRow key={si.id} icon={subject.icon} title={si.name} badge={authored ? `פיזי ${si.id}` : null} meta={si.meta}
               count={si.charges.length} countLabel="סוגי חיוב" holders={si.holders ? si.holders.length : 0} balance={subItemBalance(si)}
@@ -202,7 +202,7 @@ function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSel
       {subItem && !charge && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ fontSize: 12, color: "var(--ink-500)", fontWeight: 600, marginBottom: 2 }}>סוגי חיוב ({charges.length})</div>
+            <div style={{ fontSize: 13, color: "var(--ink-muted)", fontWeight: 600, marginBottom: 4 }}>סוגי חיוב ({charges.length})</div>
             {charges.map(c => (
               <DrillRow key={c.id} icon="receipt" title={c.name}
                 meta={c.txns ? `${(TXNS[c.txns] || []).length} תנועות` : "אין תנועות"} balance={chargeBalance(c)}
@@ -262,10 +262,10 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
     <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--ink-200)" }}>
       <table style={{ width: "100%", minWidth: 560, borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
-          <tr style={{ background: "linear-gradient(135deg,var(--teal-700) 0%,var(--teal-800) 100%)" }}>
+          <tr style={{ background: "linear-gradient(135deg,var(--teal-700) 0%,var(--teal-800) 100%)", position: "sticky", top: 0, zIndex: 2 }}>
             {cols.map((c, i) => (
-              <th key={i} style={{ textAlign: colAlign[i], padding: "12px 14px", fontSize: 12, fontWeight: 700,
-                color: "rgba(255,255,255,.9)", letterSpacing: ".01em", whiteSpace: "nowrap",
+              <th key={i} style={{ textAlign: colAlign[i], padding: "12px 14px", fontSize: 13, fontWeight: 700,
+                color: "rgba(255,255,255,.95)", whiteSpace: "nowrap",
                 width: i === 0 ? "auto" : i === 5 ? 44 : 110 }}>{c}</th>
             ))}
           </tr>
@@ -320,7 +320,7 @@ function BalancesTable({ services, totals, density, txns, txnTypes }) {
             <td className="num" style={{ ...footCell }}>₪{fmt(totals.nominal)}</td>
             <td className="num" style={{ ...footCell }}>₪{fmt(totals.indexation)}</td>
             <td className="num" style={{ ...footCell }}>₪{fmt(totals.interest)}</td>
-            <td className="num" style={{ ...footCell, fontSize: 17, fontWeight: 800 }}>₪{fmt(totals.balance)}</td>
+            <td className="num" style={{ ...footCell, fontSize: 17, fontWeight: 700 }}>₪{fmt(totals.balance)}</td>
             <td/>
           </tr>
         </tfoot>
@@ -352,7 +352,7 @@ function TxnTable({ rows, types, compact }) {
         </div>
         <Segmented size="sm" value={dc} onChange={setDc} options={[{ value: "all", label: "הכל" }, { value: "ח", label: "חובה" }, { value: "ז", label: "זכות" }]}/>
         <div style={{ flex: 1 }}/>
-        <span style={{ fontSize: 12, color: "var(--ink-500)" }}><span className="num">{filtered.length}</span> שורות</span>
+        <span style={{ fontSize: 12, color: "var(--ink-muted)" }}><span className="num">{filtered.length}</span> שורות</span>
         <button data-focusring title="ייצוא" onClick={() => window.muToast("מייצא תנועות ל-Excel", "download")}
           style={{ border: "1px solid var(--ink-200)", background: "#fff", borderRadius: 8, padding: "5px 8px", cursor: "pointer", display: "grid", placeItems: "center" }}>
           <Icon name="download" size={15} color="var(--ink-600)"/>
@@ -360,7 +360,7 @@ function TxnTable({ rows, types, compact }) {
       </div>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead>
-          <tr>{cols.map((c, i) => <th key={i} style={{ textAlign: align[i], padding: "8px 12px", fontSize: 11, fontWeight: 600, color: "var(--ink-500)", borderBottom: "1px solid var(--ink-100)", whiteSpace: "nowrap" }}>{c}</th>)}</tr>
+          <tr style={{ background: "var(--ink-50)", position: "sticky", top: 0 }}>{cols.map((c, i) => <th key={i} style={{ textAlign: align[i], padding: "8px 12px", fontSize: 13, fontWeight: 600, color: "var(--ink-muted)", borderBottom: "1px solid var(--ink-200)", whiteSpace: "nowrap" }}>{c}</th>)}</tr>
         </thead>
         <tbody>
           {filtered.length === 0 && (
@@ -374,7 +374,7 @@ function TxnTable({ rows, types, compact }) {
                 <td style={{ padding: compact ? "6px 12px" : "9px 12px", color: "var(--ink-800)", fontWeight: 500, whiteSpace: "nowrap" }}>
                   {types[r.type]} <span className="num" style={{ color: "var(--ink-400)", fontSize: 11 }}>({r.type})</span>
                 </td>
-                <td className="num" style={{ padding: compact ? "6px 12px" : "9px 12px", color: "var(--ink-500)", whiteSpace: "nowrap" }}>{r.ref}</td>
+                <td className="num" style={{ padding: compact ? "6px 12px" : "9px 12px", color: "var(--ink-muted)", whiteSpace: "nowrap" }}>{r.ref}</td>
                 <td style={{ padding: compact ? "6px 12px" : "9px 12px", textAlign: "center" }}>
                   <span style={{ display: "inline-block", minWidth: 20, fontSize: 11, fontWeight: 700, color: credit ? "#1f8a52" : "#b23636",
                     background: credit ? "#E7F6EE" : "#FBE9E9", borderRadius: 6, padding: "2px 7px" }}>{r.dc}</span>

@@ -102,8 +102,9 @@ function App() {
           year={year} breadcrumb={{ name: PAYER.name, no: PAYER.payerNo }}/>
 
       {/* hero atmosphere wash */}
-      <div style={{ background: "var(--wash-hero)", borderBottom: "1px solid var(--ink-100)" }}>
-        <div style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 24px 22px" }}>
+      <div style={{ background: "var(--wash-hero)", borderBottom: "1px solid var(--ink-100)",
+        borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        <div style={{ maxWidth: 1360, margin: "0 auto", padding: "20px 24px 24px" }}>
           <HeroZone p={PAYER} totals={totals} year={year} notesCount={notes.length} docsCount={DOCUMENTS.length} insights={AI_INSIGHTS} handlers={handlers} showStrip={ai !== "subtle"} narrow={narrow} onYear={setYear}/>
         </div>
       </div>

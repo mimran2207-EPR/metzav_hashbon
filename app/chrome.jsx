@@ -21,7 +21,7 @@ function TopBar({ onCommand, onNav, year, breadcrumb }) {
           <span style={{ color: "var(--teal-600)", fontWeight: 600 }}>מצב חשבון</span>
           <Icon name="chevleft" size={14} color="var(--ink-400)" />
           <span style={{ color: "var(--ink-800)", fontWeight: 600 }}>{breadcrumb.name}</span>
-          <span className="num" style={{ color: "var(--ink-500)", fontWeight: 500 }}>{breadcrumb.no}</span>
+          <span className="num" style={{ color: "var(--ink-muted)", fontWeight: 500 }}>{breadcrumb.no}</span>
         </div>
       </div>
 
@@ -50,7 +50,7 @@ function TopBar({ onCommand, onNav, year, breadcrumb }) {
           display: "grid", placeItems: "center", fontWeight: 700, fontSize: 12.5 }}>שע</div>
         <div style={{ lineHeight: 1.1 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-800)" }}>ישראל ישראלי</div>
-          <div style={{ fontSize: 10.5, color: "var(--ink-500)" }}>פקיד גבייה</div>
+          <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>פקיד גבייה</div>
         </div>
         <Icon name="chevdown" size={15} color="var(--ink-400)" />
       </div>

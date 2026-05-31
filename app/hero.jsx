@@ -67,18 +67,19 @@ function BalanceCard({ totals, year, onPay }) {
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 10, position: "relative" }}>
-        <span className="num" style={{ fontSize: 50, fontWeight: 800, letterSpacing: "-.03em", lineHeight: 1, color: "#fff" }}>
+        <span className="num" style={{ fontSize: "var(--text-hero)", fontWeight: 800, lineHeight: 1, color: "#fff" }}>
           ₪{fmt(totals.balance)}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", background: "#fff", color: "var(--red)",
           fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 999, alignSelf: "center" }}>חובה</span>
       </div>
+      {/* breakdown parts — min 13px for Hebrew legibility, contrast-safe rgba(.9) */}
       <div style={{ display: "flex", gap: 0, marginTop: 18, marginBottom: 18, borderRadius: 14, overflow: "hidden",
         background: "rgba(255,255,255,.10)", border: "1px solid rgba(255,255,255,.18)", position: "relative" }}>
         {parts.map((p, i) => (
           <div key={p.label} style={{ flex: 1, padding: "10px 12px", borderInlineEnd: i < 2 ? "1px solid rgba(255,255,255,.18)" : "none" }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.7)" }}>{p.label}</div>
-            <div className="num" style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginTop: 1 }}>₪{fmt(p.val)}</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,.9)" }}>{p.label}</div>
+            <div className="num" style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginTop: 2 }}>₪{fmt(p.val)}</div>
           </div>
         ))}
       </div>
@@ -158,9 +159,10 @@ function AIStrip({ insights, onCopilot }) {
           <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink-800)", minWidth: 0,
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lead.text}</span>
           {rest > 0 && (
-            <button data-focusring onClick={onCopilot} style={{ flex: "none", border: "1px solid var(--ink-200)",
+            <button data-focusring onClick={onCopilot} aria-label={`${rest} תובנות נוספות — פתח Copilot`}
+              style={{ flex: "none", border: "1px solid var(--ink-200)",
               background: "var(--ink-50)", borderRadius: 999, padding: "4px 11px", cursor: "pointer", fontFamily: "var(--font)",
-              fontSize: 12, fontWeight: 600, color: "var(--ink-600)", whiteSpace: "nowrap" }}>
+              fontSize: 13, fontWeight: 600, color: "var(--ink-muted)", whiteSpace: "nowrap" }}>
               <span className="num">{rest}</span> תובנות נוספות
             </button>
           )}
@@ -196,21 +198,29 @@ function YearNavigator({ year, onYear }) {
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, justifyContent: "center", minWidth: 0 }}>
           {visible.map(y => {
-            const hasDebt = YEAR_BALANCES[y] > 0;
+            const balance = YEAR_BALANCES[y];
+            const hasDebt = balance > 0;
             const isCurrent = y === year;
             return (
-              <button key={y} onClick={() => onYear(y)} style={{
-                position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                border: isCurrent ? "1px solid var(--teal-500)" : "1px solid var(--ink-200)",
-                background: isCurrent ? "var(--teal-50)" : "var(--white)", borderRadius: 10, padding: "8px 14px",
-                cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: isCurrent ? 700 : 600,
-                color: isCurrent ? "var(--teal-700)" : "var(--ink-600)", transition: "all .15s ease",
-                minWidth: 60 }} data-focusring>
+              <button key={y} onClick={() => onYear(y)}
+                data-focusring
+                aria-label={`שנת ${y}${hasDebt ? ` — יתרת חוב ₪${fmt(balance)}` : " — סגור"}`}
+                aria-current={isCurrent ? "page" : undefined}
+                style={{
+                  position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                  border: isCurrent ? "1.5px solid var(--teal-500)" : "1px solid var(--ink-200)",
+                  background: isCurrent ? "var(--teal-50)" : "var(--white)", borderRadius: 10,
+                  padding: "8px 14px 6px",
+                  cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: isCurrent ? 700 : 600,
+                  color: isCurrent ? "var(--teal-700)" : "var(--ink-600)", transition: "all .15s ease",
+                  minWidth: 60 }}>
                 <span className="num">{y}</span>
-                {hasDebt && (
-                  <span style={{ position: "absolute", top: 2, insetInlineEnd: 2, width: 6, height: 6,
-                    borderRadius: 999, background: "var(--red)", boxShadow: "0 2px 4px rgba(220,38,38,.3)" }}/>
-                )}
+                {/* Debt indicator: coloured bar at the bottom — wider and more visible than a tiny dot */}
+                <span style={{
+                  display: "block", height: 3, width: hasDebt ? "70%" : "70%", borderRadius: 2,
+                  background: hasDebt ? "var(--red)" : "var(--ink-200)",
+                  transition: "background .2s ease"
+                }}/>
               </button>
             );
           })}
@@ -236,16 +246,18 @@ function YearNavigator({ year, onYear }) {
       {allOpen && (
         <>
           <div onClick={() => setAllOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(20,38,50,.4)", zIndex: 6000 }}/>
-          <div onClick={e => e.stopPropagation()} className="mu-rise" style={{ position: "fixed", inset: 0, zIndex: 6001,
-            display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div onClick={e => e.stopPropagation()} className="mu-rise"
+            role="dialog" aria-modal="true" aria-labelledby="year-picker-title"
+            style={{ position: "fixed", inset: 0, zIndex: 6001,
+              display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
             <div style={{ background: "#fff", borderRadius: 16, boxShadow: "var(--shadow-lg)", padding: "24px",
               width: "100%", maxWidth: 540, maxHeight: "80vh", overflow: "auto" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--ink-900)" }}>בחר שנה</span>
-                <button data-focusring onClick={() => setAllOpen(false)} style={{
-                  width: 32, height: 32, display: "grid", placeItems: "center", border: "none",
-                  background: "var(--ink-50)", borderRadius: 8, cursor: "pointer", fontSize: 16,
-                  color: "var(--ink-600)" }}>✕</button>
+                <span id="year-picker-title" style={{ fontSize: 18, fontWeight: 700, color: "var(--ink-900)" }}>בחר שנה</span>
+                <button data-focusring onClick={() => setAllOpen(false)} aria-label="סגור חלון בחר שנה"
+                  style={{ width: 32, height: 32, display: "grid", placeItems: "center", border: "none",
+                  background: "var(--ink-100)", borderRadius: 8, cursor: "pointer", fontSize: 16,
+                  color: "var(--ink-600)", transition: "background .12s ease" }}>✕</button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                 {YEARS.map(y => {
@@ -253,16 +265,19 @@ function YearNavigator({ year, onYear }) {
                   const hasDebt = balance > 0;
                   return (
                     <button key={y} onClick={() => { onYear(y); setAllOpen(false); }}
+                      data-focusring
+                      aria-label={`שנת ${y}${hasDebt ? ` — יתרת חוב ₪${fmt(balance)}` : " — סגור"}`}
+                      aria-current={y === year ? "page" : undefined}
                       style={{
                         display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 10px",
-                        border: y === year ? "1px solid var(--teal-500)" : "1px solid var(--ink-200)",
+                        border: y === year ? "1.5px solid var(--teal-500)" : "1px solid var(--ink-200)",
                         background: y === year ? "var(--teal-50)" : "var(--white)", borderRadius: 10,
-                        cursor: "pointer", fontFamily: "var(--font)", transition: "all .15s ease" }} data-focusring>
+                        cursor: "pointer", fontFamily: "var(--font)", transition: "all .15s ease" }}>
                       <span className="num" style={{ fontSize: 15, fontWeight: y === year ? 700 : 600, color: y === year ? "var(--teal-700)" : "var(--ink-800)" }}>{y}</span>
                       {hasDebt ? (
-                        <span className="num" style={{ fontSize: 12, fontWeight: 600, color: "var(--red)" }}>₪{fmt(balance)}</span>
+                        <span className="num" style={{ fontSize: 13, fontWeight: 600, color: "var(--red)" }}>₪{fmt(balance)}</span>
                       ) : (
-                        <span style={{ fontSize: 11, color: "var(--green)" }}>סגור</span>
+                        <span style={{ fontSize: 13, color: "var(--ok-fg)" }}>סגור ✓</span>
                       )}
                     </button>
                   );
@@ -318,7 +333,7 @@ function ActionBar({ notesCount, year, onYear, handlers }) {
         <React.Fragment key={g.name}>
           {gi > 0 && <div style={{ width: 1, height: 30, background: "var(--ink-200)", margin: "0 4px" }}/>}
           <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--ink-400)", marginInlineEnd: 4, letterSpacing: ".02em" }}>{g.name}</span>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--ink-muted)", marginInlineEnd: 4 }}>{g.name}</span>
             {g.items.map(it => (
               <button key={it.id} data-focusring onClick={it.onClick} title={it.label} className={s.actionItem}>
                 <Icon name={it.icon} size={18} color="currentColor"/>

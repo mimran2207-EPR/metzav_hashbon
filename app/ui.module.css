@@ -94,7 +94,7 @@
   background: linear-gradient(135deg, var(--teal-400), var(--teal-600));
   display: grid; place-items: center; box-shadow: 0 3px 8px rgba(42,167,184,.32);
 }
-.sectionTitle { font-size: 20px; font-weight: 800; color: var(--teal-800); line-height: 1.2; letter-spacing: -.01em; }
+.sectionTitle { font-size: 18px; font-weight: 700; color: var(--teal-800); line-height: var(--leading-tight); }
 .sectionSub   { font-size: var(--text-xs); color: var(--ink-500); margin-top: var(--space-0_5); }
 
 /* ── Tip (CSS-only tooltip; shows on hover AND keyboard focus) ─────── */
