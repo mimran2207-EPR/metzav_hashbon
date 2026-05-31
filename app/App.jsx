@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { TopBar, FooterBand } from './chrome.jsx';
 import { HeroZone, ActionBar } from './hero.jsx';
-import { SubjectStrip, SubjectDrillDown, BalancesTable } from './content.jsx';
+import { SubjectStrip, AllEntitiesView } from './content.jsx';
 import { FloatingCopilot, CommandBar } from './panels.jsx';
 import { CopilotPanel, NotesDrawer, DocsDrawer, InterestCalc } from './panels2.jsx';
 import { WideTxnScreen } from './wide-txns.jsx';
@@ -10,6 +10,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakTogg
 import { SectionHead, Card, Segmented, ToastHost, useMediaQuery } from './ui.jsx';
 import { Icon } from './icons.jsx';
 import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, SUBJECTS, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
+// SERVICES, TXNS kept for compatibility with other components
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accent": "#2AA7B8",
@@ -22,12 +23,9 @@ function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const narrow = useMediaQuery("(max-width: 900px)"); // tablet / mobile breakpoint
   const [year, setYear] = useState(2026);
-  const [entity, setEntity] = useState("all");      // subject (level 1)
-  const [subItemId, setSubItemId] = useState(null); // sub-subject (level 2)
-  const [chargeId, setChargeId] = useState(null);   // charge type (level 3)
+  const [entity, setEntity] = useState("all");      // selected subject filter
   const [density, setDensity] = useState(t.density);
-  // selecting a subject resets the drill-down path
-  const selectSubject = (id) => { setEntity(id); setSubItemId(null); setChargeId(null); };
+  const selectSubject = (id) => setEntity(id);
   const [notes, setNotes] = useState(NOTES);
 
   // tweak: density sync + accent override (stays in the teal family)
@@ -57,14 +55,8 @@ function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const services = entity === "all" ? SERVICES : SERVICES.filter(s => s.subject === entity);
-  const activeSubject = SUBJECTS.find(s => s.id === entity);
-  const totals = {
-    nominal: services.reduce((a, s) => a + s.nominal, 0),
-    indexation: services.reduce((a, s) => a + s.indexation, 0),
-    interest: services.reduce((a, s) => a + s.interest, 0),
-    get balance() { return this.nominal + this.indexation + this.interest; },
-  };
+  const activeSubject = SUBJECTS.find(s => s.id === entity) || null;
+  const totals = TOTALS;
 
   const handlers = {
     onPay: () => window.muToast("מעבר למסך גביית תשלום / קבלה", "card"),
@@ -122,9 +114,12 @@ function App() {
           </div>
           <Card pad={0} style={{ overflow: "visible" }}>
             <div style={{ padding: "18px 20px 0" }}>
-              <SectionHead title={entity === "all" ? "יתרות לפי סוג שירות" : "פירוט נושא"} icon="sigma"
-                sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות"
-                  : `${activeSubject ? activeSubject.name : entity}${activeSubject ? ` · ${activeSubject.count} ${activeSubject.unit}` : ""}`}
+              <SectionHead
+                title={entity === "all" ? "כל הישויות" : activeSubject ? activeSubject.name : "ישויות"}
+                icon="sigma"
+                sub={entity === "all"
+                  ? `${SUBJECTS.reduce((a, s) => a + s.count, 0)} ישויות · לחץ ישות לפעולות ותנועות`
+                  : activeSubject ? `${activeSubject.count} ${activeSubject.unit} · לחץ ישות לפרטים` : ""}
                 right={
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <button data-focusring onClick={() => setWideOpen(true)} title="פתח מסך תנועות מלא"
@@ -139,13 +134,13 @@ function App() {
                 }/>
             </div>
             <div style={{ padding: "0 20px 20px" }}>
-              {entity === "all" || !activeSubject
-                ? <BalancesTable services={services} totals={totals} density={density} txns={TXNS} txnTypes={TXN_TYPES}/>
-                : <SubjectDrillDown subject={activeSubject} subItemId={subItemId} chargeId={chargeId}
-                    onSelectSubItem={(id) => { setSubItemId(id); setChargeId(null); }}
-                    onSelectCharge={setChargeId} onReset={() => { setSubItemId(null); setChargeId(null); }}
-                    onOpenWide={() => setWideOpen(true)} density={density} txnTypes={TXN_TYPES}
-                    onAction={runAction}/>}
+              <AllEntitiesView
+                subjects={SUBJECTS}
+                filterSubject={activeSubject}
+                density={density}
+                txnTypes={TXN_TYPES}
+                onAction={runAction}
+                onOpenWide={() => setWideOpen(true)}/>
             </div>
           </Card>
         </div>
