@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Icon } from './icons.jsx';
 import { Chip, Segmented } from './ui.jsx';
-import { fmt, SUBJECT_DETAILS, TXNS } from './data.jsx';
+import { fmt, SUBJECT_DETAILS, TXNS, QUICK_ACTIONS } from './data.jsx';
 import s from './ui.module.css';
 
 // SubjectCard — one subject in the carousel.
@@ -122,6 +122,126 @@ function DrillRow({ icon, title, badge, meta, balance, count, countLabel, holder
   );
 }
 
+// PropertyContextPanel — shown when a single פיזי (sub-item) is selected.
+// Displays: identity banner + scoped quick actions + holder history chain.
+function PropertyContextPanel({ subItem, subject, totalBalance, onAction }) {
+  const [holdersOpen, setHoldersOpen] = useState(false);
+  const holders = subItem.holders || [];
+  const currentHolder = holders.find(h => h.current);
+  const prevHolders = holders.filter(h => !h.current);
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {/* ── identity banner ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+        background: "linear-gradient(135deg,var(--teal-800) 0%,var(--teal-600) 100%)",
+        borderRadius: "12px 12px 0 0", color: "#fff", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", insetInlineEnd: -24, top: -24, width: 100, height: 100,
+          borderRadius: 999, background: "rgba(255,255,255,.07)", pointerEvents: "none" }}/>
+        <div style={{ width: 44, height: 44, borderRadius: 12, flex: "none", display: "grid", placeItems: "center",
+          background: "rgba(255,255,255,.18)" }}>
+          <Icon name={subject.icon} size={22} color="#fff"/>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>{subItem.name}</span>
+            <span className="num" style={{ fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,.2)",
+              color: "#fff", borderRadius: 6, padding: "2px 8px" }}>פיזי {subItem.id}</span>
+          </div>
+          {subItem.meta && <div style={{ fontSize: 13, color: "rgba(255,255,255,.8)", marginTop: 2 }}>{subItem.meta}</div>}
+        </div>
+        <div style={{ textAlign: "start", flex: "none" }}>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,.7)" }}>יתרת חוב</div>
+          <div className="num" style={{ fontSize: 22, fontWeight: 700, color: totalBalance > 0 ? "#ffd9d9" : "#c8f5d8" }}>
+            {totalBalance > 0 ? `₪${fmt(totalBalance)}` : "0 ✓"}
+          </div>
+        </div>
+      </div>
+
+      {/* ── quick actions scoped to this פיזי ── */}
+      <div style={{ padding: "12px 16px 4px", background: "var(--teal-50)",
+        borderInlineStart: "3px solid var(--teal-400)", borderInlineEnd: "3px solid var(--teal-400)" }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--teal-700)", marginBottom: 8, letterSpacing: ".01em" }}>
+          פעולות לפיזי {subItem.id}
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {QUICK_ACTIONS.map(a => (
+            <button key={a.id} data-focusring onClick={() => onAction && onAction(a)}
+              title={a.hint}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6,
+                border: "1px solid var(--teal-300)", background: "#fff",
+                borderRadius: 999, padding: "7px 14px", cursor: "pointer",
+                fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, color: "var(--teal-700)",
+                transition: "background .13s ease, border-color .13s ease, transform .1s ease",
+                boxShadow: "0 1px 4px rgba(42,167,184,.10)" }}>
+              <Icon name={a.icon} size={14} color="var(--teal-600)"/>
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── holder chain — compact strip, expandable ── */}
+      {holders.length > 0 && (
+        <div style={{ padding: "10px 16px", background: "var(--ink-50)",
+          borderInlineStart: "3px solid var(--teal-400)", borderInlineEnd: "3px solid var(--teal-400)",
+          borderTop: "1px solid var(--teal-100)" }}>
+          <button data-focusring onClick={() => setHoldersOpen(o => !o)}
+            style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", border: "none",
+              background: "transparent", cursor: "pointer", padding: 0, fontFamily: "var(--font)" }}>
+            <Icon name="history" size={15} color="var(--teal-600)"/>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--teal-700)" }}>שרשרת מחזיקים</span>
+            {/* compact preview — current + count */}
+            {currentHolder && (
+              <span style={{ fontSize: 12, color: "var(--ink-muted)", marginInlineStart: 4 }}>
+                {currentHolder.name}
+                {prevHolders.length > 0 && ` + ${prevHolders.length} קודמים`}
+              </span>
+            )}
+            <Icon name="chevdown" size={14} color="var(--ink-400)"
+              style={{ marginInlineStart: "auto", transform: holdersOpen ? "rotate(180deg)" : "none", transition: "transform .18s" }}/>
+          </button>
+
+          {holdersOpen && (
+            <div className="mu-rise" style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 0,
+              border: "1px solid var(--ink-200)", borderRadius: 10, overflow: "hidden" }}>
+              {holders.map((h, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px",
+                  background: h.current ? "var(--teal-50)" : "#fff",
+                  borderBottom: i < holders.length - 1 ? "1px solid var(--ink-100)" : "none" }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 999, flex: "none", display: "grid",
+                    placeItems: "center", fontSize: 11, fontWeight: 700,
+                    background: h.current ? "var(--teal-500)" : "var(--ink-100)",
+                    color: h.current ? "#fff" : "var(--ink-muted)" }}>
+                    {h.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-800)" }}>{h.name}</span>
+                      {h.current
+                        ? <Chip tone="green" style={{ fontSize: 10 }}>נוכחי</Chip>
+                        : <Chip tone="gray" style={{ fontSize: 10 }}>קודם</Chip>}
+                      {h.reason && <span style={{ fontSize: 11, color: "var(--ink-muted)" }}>· {h.reason}</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>
+                      משלם <span className="num">{h.payerNo}</span>
+                      {" · "}{h.from} – {h.to || "היום"}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* bottom border closing the banner */}
+      <div style={{ height: 3, background: "linear-gradient(90deg,var(--teal-600),var(--teal-400))",
+        borderRadius: "0 0 4px 4px" }}/>
+    </div>
+  );
+}
+
 // HolderHistory — "משלמים היסטוריים" scoped to a single פיזי (property): the
 // chain of holders who were the payer for this property over time.
 function HolderHistory({ holders, naxasId }) {
@@ -167,7 +287,7 @@ function HolderHistory({ holders, naxasId }) {
 
 // SubjectDrillDown — renders the current level (sub-items / charges / account)
 // for a selected subject, with a breadcrumb trail.
-function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSelectCharge, onReset, onOpenWide, density, txnTypes }) {
+function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSelectCharge, onReset, onOpenWide, density, txnTypes, onAction }) {
   const subItems = getSubItems(subject);
   const subItem = subItems.find(si => si.id === subItemId);
   const charges = subItem ? subItem.charges : [];
@@ -198,18 +318,24 @@ function SubjectDrillDown({ subject, subItemId, chargeId, onSelectSubItem, onSel
         </div>
       )}
 
-      {/* level 3 — charge types + property holder history */}
+      {/* level 3 — property context banner + quick actions + holder chain + charge types */}
       {subItem && !charge && (
         <>
+          <PropertyContextPanel
+            subItem={subItem}
+            subject={subject}
+            totalBalance={subItemBalance(subItem)}
+            onAction={onAction}/>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ fontSize: 13, color: "var(--ink-muted)", fontWeight: 600, marginBottom: 4 }}>סוגי חיוב ({charges.length})</div>
+            <div style={{ fontSize: 13, color: "var(--ink-muted)", fontWeight: 600, marginBottom: 4 }}>
+              סוגי חיוב ({charges.length})
+            </div>
             {charges.map(c => (
               <DrillRow key={c.id} icon="receipt" title={c.name}
                 meta={c.txns ? `${(TXNS[c.txns] || []).length} תנועות` : "אין תנועות"} balance={chargeBalance(c)}
                 onClick={() => onSelectCharge(c.id)}/>
             ))}
           </div>
-          <HolderHistory holders={subItem.holders} naxasId={subItem.id}/>
         </>
       )}
 

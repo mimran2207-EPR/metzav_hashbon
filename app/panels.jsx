@@ -186,4 +186,47 @@ function CommandBar({ open, onClose, onRun }) {
 }
 const kbdStyle = { fontFamily: "var(--font)", fontSize: 11, fontWeight: 600, color: "var(--ink-600)", background: "#fff", border: "1px solid var(--ink-300)", borderRadius: 5, padding: "1px 5px" };
 
-export { LeftColumn, CommandBar };
+// FloatingCopilot — compact fixed button (bottom-start corner). Shows the
+// highest-severity insight as a tooltip; click opens the full CopilotPanel.
+const INSIGHT_SEVERITY = { crit: 0, warn: 1, good: 2 };
+function FloatingCopilot({ onOpen, insights = [] }) {
+  const [hovered, setHovered] = useState(false);
+  const lead = [...insights].sort((a, b) => (INSIGHT_SEVERITY[a.tone] ?? 9) - (INSIGHT_SEVERITY[b.tone] ?? 9))[0];
+  const critCount = insights.filter(i => i.tone === "crit").length;
+  return (
+    <div style={{ position: "fixed", bottom: 28, insetInlineStart: 28, zIndex: 1200, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 10 }}>
+      {/* insight preview bubble — shown on hover */}
+      {hovered && lead && (
+        <div className="mu-rise" style={{ background: "var(--ink-900)", color: "#fff", borderRadius: 12,
+          padding: "11px 14px", maxWidth: 280, boxShadow: "var(--shadow-lg)", fontSize: 13, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,.6)", marginBottom: 5 }}>תובנה בעדיפות גבוהה</div>
+          {lead.text}
+          {insights.length > 1 && (
+            <div style={{ marginTop: 8, fontSize: 11, color: "rgba(255,255,255,.55)" }}>
+              + {insights.length - 1} תובנות נוספות
+            </div>
+          )}
+        </div>
+      )}
+      {/* main button */}
+      <button data-focusring onClick={onOpen}
+        onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+        aria-label="פתח AI Copilot"
+        style={{ display: "flex", alignItems: "center", gap: 9,
+          background: "linear-gradient(135deg,var(--teal-500),var(--teal-700))",
+          color: "#fff", border: "none", borderRadius: 999,
+          padding: "11px 18px", cursor: "pointer", fontFamily: "var(--font)",
+          fontSize: 14, fontWeight: 700, boxShadow: "0 6px 20px rgba(42,167,184,.45)",
+          transition: "transform .15s ease, box-shadow .15s ease" }}>
+        <Icon name="sparkle" size={18} color="#fff"/>
+        AI Copilot
+        {critCount > 0 && (
+          <span style={{ background: "var(--red)", color: "#fff", fontSize: 11, fontWeight: 700,
+            borderRadius: 999, padding: "1px 7px", marginInlineStart: 2 }}>{critCount}</span>
+        )}
+      </button>
+    </div>
+  );
+}
+
+export { LeftColumn, FloatingCopilot, CommandBar };

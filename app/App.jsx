@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { TopBar, FooterBand } from './chrome.jsx';
 import { HeroZone, ActionBar } from './hero.jsx';
 import { SubjectStrip, SubjectDrillDown, BalancesTable } from './content.jsx';
-import { LeftColumn, CommandBar } from './panels.jsx';
+import { FloatingCopilot, CommandBar } from './panels.jsx';
 import { CopilotPanel, NotesDrawer, DocsDrawer, InterestCalc } from './panels2.jsx';
 import { WideTxnScreen } from './wide-txns.jsx';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakToggle } from './tweaks-panel.jsx';
@@ -113,47 +113,45 @@ function App() {
         <ActionBar notesCount={notes.length} year={year} onYear={setYear} handlers={handlers}/>
       </div>
 
-      {/* main two-column */}
+      {/* main — full width, sidebar removed; AI is floating */}
       <main id="main" style={{ flex: 1, maxWidth: 1360, margin: "0 auto", width: "100%", padding: "18px 24px 0", boxSizing: "border-box", scrollMarginTop: 72 }}>
-        <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "minmax(0,1fr) 340px", gap: 18, alignItems: "start" }}>
-          {/* right (data) column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <SectionHead title="ישויות ונושאים" sub={`מס׳ משלם ${PAYER.payerNo} · ת.ז ${PAYER.taz}`}/>
-              <SubjectStrip subjects={SUBJECTS} selected={entity} onSelect={selectSubject}/>
-            </div>
-            <Card pad={0} style={{ overflow: "visible" }}>
-              <div style={{ padding: "18px 20px 0" }}>
-                <SectionHead title={entity === "all" ? "יתרות לפי סוג שירות" : "פירוט נושא"} icon="sigma"
-                  sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות"
-                    : `${activeSubject ? activeSubject.name : entity}${activeSubject ? ` · ${activeSubject.count} ${activeSubject.unit}` : ""} · לחץ פריט לפירוט סוגי חיוב ותנועות`}
-                  right={
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <button data-focusring onClick={() => setWideOpen(true)} title="פתח מסך תנועות מלא"
-                        style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid var(--teal-500)",
-                          background: "var(--teal-50)", color: "var(--teal-700)", borderRadius: 999, padding: "6px 13px",
-                          cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600 }}>
-                        <Icon name="receipt" size={15} color="var(--teal-600)"/> תנועות למשלם
-                      </button>
-                      <Segmented size="sm" value={density} onChange={setDensity}
-                        options={[{ value: "comfortable", label: "מרווח" }, { value: "compact", label: "צפוף" }]}/>
-                    </div>
-                  }/>
-              </div>
-              <div style={{ padding: "0 20px 20px" }}>
-                {entity === "all" || !activeSubject
-                  ? <BalancesTable services={services} totals={totals} density={density} txns={TXNS} txnTypes={TXN_TYPES}/>
-                  : <SubjectDrillDown subject={activeSubject} subItemId={subItemId} chargeId={chargeId}
-                      onSelectSubItem={(id) => { setSubItemId(id); setChargeId(null); }}
-                      onSelectCharge={setChargeId} onReset={() => { setSubItemId(null); setChargeId(null); }}
-                      onOpenWide={() => setWideOpen(true)} density={density} txnTypes={TXN_TYPES}/>}
-              </div>
-            </Card>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <SectionHead title="ישויות ונושאים" sub={`מס׳ משלם ${PAYER.payerNo} · ת.ז ${PAYER.taz}`}/>
+            <SubjectStrip subjects={SUBJECTS} selected={entity} onSelect={selectSubject}/>
           </div>
-
-          {/* left (AI) column */}
-          <LeftColumn insights={AI_INSIGHTS} actions={QUICK_ACTIONS} onCopilot={() => setCopilot(true)} onAction={runAction} mode={ai}/>
+          <Card pad={0} style={{ overflow: "visible" }}>
+            <div style={{ padding: "18px 20px 0" }}>
+              <SectionHead title={entity === "all" ? "יתרות לפי סוג שירות" : "פירוט נושא"} icon="sigma"
+                sub={entity === "all" ? "כל הנושאים · לחץ שורה לפירוט תנועות"
+                  : `${activeSubject ? activeSubject.name : entity}${activeSubject ? ` · ${activeSubject.count} ${activeSubject.unit}` : ""}`}
+                right={
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <button data-focusring onClick={() => setWideOpen(true)} title="פתח מסך תנועות מלא"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid var(--teal-500)",
+                        background: "var(--teal-50)", color: "var(--teal-700)", borderRadius: 999, padding: "6px 13px",
+                        cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600 }}>
+                      <Icon name="receipt" size={15} color="var(--teal-600)"/> תנועות למשלם
+                    </button>
+                    <Segmented size="sm" value={density} onChange={setDensity}
+                      options={[{ value: "comfortable", label: "מרווח" }, { value: "compact", label: "צפוף" }]}/>
+                  </div>
+                }/>
+            </div>
+            <div style={{ padding: "0 20px 20px" }}>
+              {entity === "all" || !activeSubject
+                ? <BalancesTable services={services} totals={totals} density={density} txns={TXNS} txnTypes={TXN_TYPES}/>
+                : <SubjectDrillDown subject={activeSubject} subItemId={subItemId} chargeId={chargeId}
+                    onSelectSubItem={(id) => { setSubItemId(id); setChargeId(null); }}
+                    onSelectCharge={setChargeId} onReset={() => { setSubItemId(null); setChargeId(null); }}
+                    onOpenWide={() => setWideOpen(true)} density={density} txnTypes={TXN_TYPES}
+                    onAction={runAction}/>}
+            </div>
+          </Card>
         </div>
+
+        {/* floating AI copilot trigger — bottom-left corner */}
+        <FloatingCopilot onOpen={() => setCopilot(true)} insights={AI_INSIGHTS}/>
       </main>
 
       {t.showCityscape ? <FooterBand/> : <div style={{ height: 40 }}/>}
