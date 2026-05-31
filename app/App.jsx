@@ -10,7 +10,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakRadio, TweakColor, TweakTogg
 import { SectionHead, Card, Segmented, ToastHost, useMediaQuery } from './ui.jsx';
 import { Icon } from './icons.jsx';
 import { PAYER, TOTALS, SERVICES, TXNS, TXN_TYPES, SUBJECTS, DOCUMENTS, AI_INSIGHTS, QUICK_ACTIONS, NOTES } from './data.jsx';
-import { ThemePicker, THEMES } from './table-utils.jsx';
+import { ThemePicker, THEMES, generateThemeFromColor } from './table-utils.jsx';
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accent": "#2AA7B8",
@@ -44,11 +44,18 @@ function App() {
   const [wideNaxas, setWideNaxas] = useState(null);
   const [themeId, setThemeId] = useState("teal");
 
-  // Apply color theme dynamically
+  // Apply color theme dynamically (preset themes)
   useEffect(() => {
+    if (themeId === "custom") return; // handled by onCustom
     const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
     Object.entries(theme.vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
   }, [themeId]);
+
+  // Apply custom color theme from full color picker
+  const handleCustomTheme = (hex) => {
+    const vars = generateThemeFromColor(hex);
+    Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  };
 
   // ⌘K / Ctrl+K + shortcuts
   // NOTE: we intentionally do NOT hijack Ctrl/⌘+P — overriding the browser's
@@ -111,7 +118,7 @@ function App() {
 
       <div style={{ maxWidth: 1360, margin: "0 auto", width: "100%", padding: "16px 24px 0", boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ flex: 1 }}><ActionBar notesCount={notes.length} year={year} onYear={setYear} handlers={handlers}/></div>
-        <ThemePicker activeId={themeId} onChange={setThemeId}/>
+        <ThemePicker activeId={themeId} onChange={setThemeId} onCustom={handleCustomTheme}/>
       </div>
 
       {/* main — full width, sidebar removed; AI is floating */}
