@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from './icons.jsx';
 import { Card, Chip, PillButton, useMediaQuery } from './ui.jsx';
-import { YEARS, fmt } from './data.jsx';
+import { YEARS, YEAR_BALANCES, fmt } from './data.jsx';
 import s from './ui.module.css';
 
 function fieldRow(label, value, mono) {
@@ -171,7 +171,112 @@ function AIStrip({ insights, onCopilot }) {
   );
 }
 
-function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, showStrip = true, narrow = false }) {
+// YearNavigator — multi-year timeline. Scrollable strip of years around the current,
+// with a button per year (current = highlighted teal, others = gray). Years with open
+// debt show a red dot. Button "כל השנים" opens a modal with full year grid + balances.
+function YearNavigator({ year, onYear }) {
+  const [allOpen, setAllOpen] = useState(false);
+  const visibleCount = 7;
+  const idx = YEARS.indexOf(year);
+  const start = Math.max(0, idx - Math.floor(visibleCount / 2));
+  const end = Math.min(YEARS.length, start + visibleCount);
+  const visible = YEARS.slice(start, end);
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "12px 14px",
+        background: "var(--white)", border: "1px solid var(--ink-100)", borderRadius: 16,
+        boxShadow: "0 1px 2px rgba(18,48,60,.04), 0 12px 30px rgba(18,48,60,.08)" }}>
+        <button data-focusring onClick={() => { const prev = YEARS[Math.max(0, idx - 1)]; if (prev) onYear(prev); }}
+          disabled={idx === 0} style={{ display: "flex", alignItems: "center", justifyContent: "center",
+          width: 32, height: 32, border: "1px solid var(--ink-200)", background: "var(--white)", borderRadius: 8,
+          cursor: idx === 0 ? "not-allowed" : "pointer", color: idx === 0 ? "var(--ink-300)" : "var(--teal-600)",
+          opacity: idx === 0 ? 0.5 : 1, transition: "all .15s ease" }}>
+          <Icon name="chevright" size={18}/>
+        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, justifyContent: "center", minWidth: 0 }}>
+          {visible.map(y => {
+            const hasDebt = YEAR_BALANCES[y] > 0;
+            const isCurrent = y === year;
+            return (
+              <button key={y} onClick={() => onYear(y)} style={{
+                position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                border: isCurrent ? "1px solid var(--teal-500)" : "1px solid var(--ink-200)",
+                background: isCurrent ? "var(--teal-50)" : "var(--white)", borderRadius: 10, padding: "8px 14px",
+                cursor: "pointer", fontFamily: "var(--font)", fontSize: 13, fontWeight: isCurrent ? 700 : 600,
+                color: isCurrent ? "var(--teal-700)" : "var(--ink-600)", transition: "all .15s ease",
+                minWidth: 60 }} data-focusring>
+                <span className="num">{y}</span>
+                {hasDebt && (
+                  <span style={{ position: "absolute", top: 2, insetInlineEnd: 2, width: 6, height: 6,
+                    borderRadius: 999, background: "var(--red)", boxShadow: "0 2px 4px rgba(220,38,38,.3)" }}/>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <button data-focusring onClick={() => { const next = YEARS[Math.min(YEARS.length - 1, idx + 1)]; if (next) onYear(next); }}
+          disabled={idx === YEARS.length - 1} style={{ display: "flex", alignItems: "center", justifyContent: "center",
+          width: 32, height: 32, border: "1px solid var(--ink-200)", background: "var(--white)", borderRadius: 8,
+          cursor: idx === YEARS.length - 1 ? "not-allowed" : "pointer", color: idx === YEARS.length - 1 ? "var(--ink-300)" : "var(--teal-600)",
+          opacity: idx === YEARS.length - 1 ? 0.5 : 1, transition: "all .15s ease" }}>
+          <Icon name="chevleft" size={18}/>
+        </button>
+        <div style={{ width: 1, height: 32, background: "var(--ink-100)" }}/>
+        <button data-focusring onClick={() => setAllOpen(true)} style={{
+          display: "flex", alignItems: "center", gap: 6, border: "1px solid var(--ink-200)",
+          background: "var(--white)", borderRadius: 8, padding: "7px 12px", cursor: "pointer",
+          fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, color: "var(--ink-600)",
+          transition: "all .15s ease" }}>
+          <Icon name="calendar" size={16} color="var(--ink-400)"/>
+          כל השנים
+        </button>
+      </div>
+
+      {allOpen && (
+        <>
+          <div onClick={() => setAllOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(20,38,50,.4)", zIndex: 6000 }}/>
+          <div onClick={e => e.stopPropagation()} className="mu-rise" style={{ position: "fixed", inset: 0, zIndex: 6001,
+            display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+            <div style={{ background: "#fff", borderRadius: 16, boxShadow: "var(--shadow-lg)", padding: "24px",
+              width: "100%", maxWidth: 540, maxHeight: "80vh", overflow: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--ink-900)" }}>בחר שנה</span>
+                <button data-focusring onClick={() => setAllOpen(false)} style={{
+                  width: 32, height: 32, display: "grid", placeItems: "center", border: "none",
+                  background: "var(--ink-50)", borderRadius: 8, cursor: "pointer", fontSize: 16,
+                  color: "var(--ink-600)" }}>✕</button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                {YEARS.map(y => {
+                  const balance = YEAR_BALANCES[y];
+                  const hasDebt = balance > 0;
+                  return (
+                    <button key={y} onClick={() => { onYear(y); setAllOpen(false); }}
+                      style={{
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 10px",
+                        border: y === year ? "1px solid var(--teal-500)" : "1px solid var(--ink-200)",
+                        background: y === year ? "var(--teal-50)" : "var(--white)", borderRadius: 10,
+                        cursor: "pointer", fontFamily: "var(--font)", transition: "all .15s ease" }} data-focusring>
+                      <span className="num" style={{ fontSize: 15, fontWeight: y === year ? 700 : 600, color: y === year ? "var(--teal-700)" : "var(--ink-800)" }}>{y}</span>
+                      {hasDebt ? (
+                        <span className="num" style={{ fontSize: 12, fontWeight: 600, color: "var(--red)" }}>₪{fmt(balance)}</span>
+                      ) : (
+                        <span style={{ fontSize: 11, color: "var(--green)" }}>סגור</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, showStrip = true, narrow = false, onYear }) {
   return (
     <div className="mu-rise" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "1.45fr 1fr 1fr", gap: 14, alignItems: "stretch" }}>
@@ -179,6 +284,7 @@ function HeroZone({ p, totals, year, notesCount, docsCount, insights, handlers, 
         <BalanceCard totals={totals} year={year} onPay={handlers.onPay}/>
         <AlertsCard notesCount={notesCount} docsCount={docsCount} onNotes={handlers.onNotes} onDocs={handlers.onDocs} onEnforce={handlers.onEnforce}/>
       </div>
+      <YearNavigator year={year} onYear={onYear}/>
       {showStrip && <AIStrip insights={insights} onCopilot={handlers.onCopilot}/>}
     </div>
   );

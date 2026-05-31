@@ -216,6 +216,15 @@ const LEDGER_COLUMNS = [
 
 const YEARS = Array.from({ length: 2026 - 2007 + 1 }, (_, i) => 2026 - i);
 
+// YEAR_BALANCES — closing balance per fiscal year (multi-year view). Most years
+// are settled (0); a few carry open debt. Drives the year navigator + window.
+const YEAR_BALANCES = (() => {
+  const open = { 2026: 13574, 2025: 4120, 2023: 880 };
+  const o = {};
+  YEARS.forEach(y => { o[y] = open[y] || 0; });
+  return o;
+})();
+
 const AI_INSIGHTS = [
   { id: "growth", tone: "warn", icon: "trend",
     text: "החוב גדל ב-21% מתחילת השנה — ₪1,950 מתוכם ריבית והצמדה מצטברת.",
@@ -260,6 +269,6 @@ const DOCUMENTS = [
 function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
 
 export {
-  PAYER, ENTITIES, SUBJECTS, SUBJECT_DETAILS, SERVICES, TOTALS, TXNS, TXN_TYPES, YEARS,
+  PAYER, ENTITIES, SUBJECTS, SUBJECT_DETAILS, SERVICES, TOTALS, TXNS, TXN_TYPES, YEARS, YEAR_BALANCES,
   AI_INSIGHTS, AI_ACTIONS, QUICK_ACTIONS, NOTES, DOCUMENTS, LEDGER, LEDGER_COLUMNS, fmt,
 };
