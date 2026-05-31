@@ -15,7 +15,7 @@ function CollapsibleCard({ title, sub, icon, defaultOpen = true, cardStyle, chil
         <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           {icon && <span style={{ width: 30, height: 30, borderRadius: 9, flex: "none",
             background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", display: "grid", placeItems: "center",
-            boxShadow: "0 3px 8px rgba(42,167,184,.32)" }}>
+            boxShadow: "0 3px 8px rgba(var(--teal-rgb),.32)" }}>
             <Icon name={icon} size={17} color="#fff"/></span>}
           <span style={{ textAlign: "start", minWidth: 0 }}>
             <span style={{ display: "block", fontSize: 16, fontWeight: 700, color: "var(--teal-700)", lineHeight: 1.25 }}>{title}</span>
@@ -86,7 +86,7 @@ function LeftColumn({ insights, actions, onCopilot, onAction, mode = "balanced" 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {actions.map(a => (
             <button key={a.id} data-focusring onClick={() => onAction(a)} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "10px 12px" }}>
-              <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", display: "grid", placeItems: "center", flex: "none", boxShadow: "0 3px 8px rgba(42,167,184,.3)" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", display: "grid", placeItems: "center", flex: "none", boxShadow: "0 3px 8px rgba(var(--teal-rgb),.3)" }}>
                 <Icon name={a.icon} size={17} color="#fff"/>
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
@@ -216,7 +216,7 @@ function FloatingCopilot({ onOpen, insights = [] }) {
           background: "linear-gradient(135deg,var(--teal-500),var(--teal-700))",
           color: "#fff", border: "none", borderRadius: 999,
           padding: "11px 18px", cursor: "pointer", fontFamily: "var(--font)",
-          fontSize: 14, fontWeight: 700, boxShadow: "0 6px 20px rgba(42,167,184,.45)",
+          fontSize: 14, fontWeight: 700, boxShadow: "0 6px 20px rgba(var(--teal-rgb),.45)",
           transition: "transform .15s ease, box-shadow .15s ease" }}>
         <Icon name="sparkle" size={18} color="#fff"/>
         AI Copilot

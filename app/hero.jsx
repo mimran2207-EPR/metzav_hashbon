@@ -55,7 +55,7 @@ function BalanceCard({ totals, year, onPay }) {
   ];
   return (
     <Card pad={22} style={{ display: "flex", flexDirection: "column", color: "#fff",
-      background: "linear-gradient(150deg,#0E525C 0%,#166F7C 48%,#1D8F9F 100%)", border: "1px solid transparent" }}>
+      background: "linear-gradient(150deg,var(--teal-800) 0%,var(--teal-700) 48%,var(--teal-600) 100%)", border: "1px solid transparent"}}>
       {/* decorative glow */}
       <div style={{ position: "absolute", insetInlineStart: -40, top: -50, width: 160, height: 160, borderRadius: 999,
         background: "rgba(255,255,255,.08)", pointerEvents: "none" }}/>

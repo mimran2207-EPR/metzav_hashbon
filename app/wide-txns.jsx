@@ -149,7 +149,7 @@ function WideTxnScreen({ open, onClose, payer, filterNaxas }) {
       style={{ position: "fixed", inset: 0, zIndex: 7000, background: "var(--ink-50)", display: "flex", flexDirection: "column", animation: "muFade .15s ease" }}>
       {/* ── header ── */}
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: 14, padding: "12px 20px", color: "#fff",
-        background: "linear-gradient(135deg,#0E525C 0%,#166F7C 55%,#1D8F9F 100%)", boxShadow: "var(--shadow-md)" }}>
+        background: "linear-gradient(135deg,var(--teal-800) 0%,var(--teal-700) 55%,var(--teal-600) 100%)", boxShadow: "var(--shadow-md)" }}>
         <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,.18)", display: "grid", placeItems: "center", flex: "none" }}>
           <Icon name="receipt" size={20} color="#fff"/>
         </div>

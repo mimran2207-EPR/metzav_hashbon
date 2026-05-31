@@ -140,15 +140,15 @@ export function useColVisibility(initialHidden = []) {
 // ── COLOR THEMES ─────────────────────────────────────────────────────────────
 export const THEMES = [
   { id: "teal",   name: "ים",    dot: "#2AA7B8",
-    vars: { "--teal-50":"#E6F5F7","--teal-100":"#CDEBEF","--teal-200":"#9FDBE2","--teal-300":"#70C8D2","--teal-400":"#4AB7C4","--teal-500":"#2AA7B8","--teal-600":"#1D8F9F","--teal-700":"#166F7C","--teal-800":"#0E525C","--teal-900":"#083C44","--wash-hero":"linear-gradient(180deg,#EAF6F8 0%,#F5FBFC 55%,#F7F9FB 100%)" }},
+    vars: { "--teal-rgb":"42,167,184","--teal-50":"#E6F5F7","--teal-100":"#CDEBEF","--teal-200":"#9FDBE2","--teal-300":"#70C8D2","--teal-400":"#4AB7C4","--teal-500":"#2AA7B8","--teal-600":"#1D8F9F","--teal-700":"#166F7C","--teal-800":"#0E525C","--teal-900":"#083C44","--wash-hero":"linear-gradient(180deg,#EAF6F8 0%,#F5FBFC 55%,#F7F9FB 100%)" }},
   { id: "blue",   name: "כחול",  dot: "#2563EB",
-    vars: { "--teal-50":"#EFF6FF","--teal-100":"#DBEAFE","--teal-200":"#BFDBFE","--teal-300":"#93C5FD","--teal-400":"#60A5FA","--teal-500":"#3B82F6","--teal-600":"#2563EB","--teal-700":"#1D4ED8","--teal-800":"#1E40AF","--teal-900":"#1e3a8a","--wash-hero":"linear-gradient(180deg,#EFF6FF 0%,#F0F7FF 55%,#F7F9FB 100%)" }},
+    vars: { "--teal-rgb":"59,130,246","--teal-50":"#EFF6FF","--teal-100":"#DBEAFE","--teal-200":"#BFDBFE","--teal-300":"#93C5FD","--teal-400":"#60A5FA","--teal-500":"#3B82F6","--teal-600":"#2563EB","--teal-700":"#1D4ED8","--teal-800":"#1E40AF","--teal-900":"#1e3a8a","--wash-hero":"linear-gradient(180deg,#EFF6FF 0%,#F0F7FF 55%,#F7F9FB 100%)" }},
   { id: "purple", name: "סגול",  dot: "#7C3AED",
-    vars: { "--teal-50":"#F5F3FF","--teal-100":"#EDE9FE","--teal-200":"#DDD6FE","--teal-300":"#C4B5FD","--teal-400":"#A78BFA","--teal-500":"#8B5CF6","--teal-600":"#7C3AED","--teal-700":"#6D28D9","--teal-800":"#4C1D95","--teal-900":"#3b0764","--wash-hero":"linear-gradient(180deg,#F5F3FF 0%,#F8F6FF 55%,#F7F9FB 100%)" }},
+    vars: { "--teal-rgb":"139,92,246","--teal-50":"#F5F3FF","--teal-100":"#EDE9FE","--teal-200":"#DDD6FE","--teal-300":"#C4B5FD","--teal-400":"#A78BFA","--teal-500":"#8B5CF6","--teal-600":"#7C3AED","--teal-700":"#6D28D9","--teal-800":"#4C1D95","--teal-900":"#3b0764","--wash-hero":"linear-gradient(180deg,#F5F3FF 0%,#F8F6FF 55%,#F7F9FB 100%)" }},
   { id: "green",  name: "ירוק",  dot: "#059669",
-    vars: { "--teal-50":"#ECFDF5","--teal-100":"#D1FAE5","--teal-200":"#A7F3D0","--teal-300":"#6EE7B7","--teal-400":"#34D399","--teal-500":"#10B981","--teal-600":"#059669","--teal-700":"#047857","--teal-800":"#065F46","--teal-900":"#064e3b","--wash-hero":"linear-gradient(180deg,#ECFDF5 0%,#F0FDF4 55%,#F7F9FB 100%)" }},
+    vars: { "--teal-rgb":"16,185,129","--teal-50":"#ECFDF5","--teal-100":"#D1FAE5","--teal-200":"#A7F3D0","--teal-300":"#6EE7B7","--teal-400":"#34D399","--teal-500":"#10B981","--teal-600":"#059669","--teal-700":"#047857","--teal-800":"#065F46","--teal-900":"#064e3b","--wash-hero":"linear-gradient(180deg,#ECFDF5 0%,#F0FDF4 55%,#F7F9FB 100%)" }},
   { id: "rose",   name: "ורוד",  dot: "#E11D48",
-    vars: { "--teal-50":"#FFF1F2","--teal-100":"#FFE4E6","--teal-200":"#FECDD3","--teal-300":"#FDA4AF","--teal-400":"#FB7185","--teal-500":"#F43F5E","--teal-600":"#E11D48","--teal-700":"#BE123C","--teal-800":"#9F1239","--teal-900":"#881337","--wash-hero":"linear-gradient(180deg,#FFF1F2 0%,#FFF5F6 55%,#F7F9FB 100%)" }},
+    vars: { "--teal-rgb":"244,63,94","--teal-50":"#FFF1F2","--teal-100":"#FFE4E6","--teal-200":"#FECDD3","--teal-300":"#FDA4AF","--teal-400":"#FB7185","--teal-500":"#F43F5E","--teal-600":"#E11D48","--teal-700":"#BE123C","--teal-800":"#9F1239","--teal-900":"#881337","--wash-hero":"linear-gradient(180deg,#FFF1F2 0%,#FFF5F6 55%,#F7F9FB 100%)" }},
 ];
 
 // ThemePicker — floating color palette button

@@ -36,9 +36,9 @@
 .primary {
   background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
   color: #fff;
-  box-shadow: 0 4px 12px rgba(42,167,184,.32);
+  box-shadow: 0 4px 12px rgba(var(--teal-rgb),.32);
 }
-.primary:hover:not(:disabled) { box-shadow: 0 8px 20px rgba(42,167,184,.45); }
+.primary:hover:not(:disabled) { box-shadow: 0 8px 20px rgba(var(--teal-rgb),.45); }
 
 .secondary { background: transparent; color: var(--teal-600); border-color: var(--teal-500); }
 .secondary:hover:not(:disabled) { background: var(--teal-50); }
@@ -92,7 +92,7 @@
 .sectionIcon {
   width: 30px; height: 30px; border-radius: var(--radius-md, 9px);
   background: linear-gradient(135deg, var(--teal-400), var(--teal-600));
-  display: grid; place-items: center; box-shadow: 0 3px 8px rgba(42,167,184,.32);
+  display: grid; place-items: center; box-shadow: 0 3px 8px rgba(var(--teal-rgb),.32);
 }
 .sectionTitle { font-size: 18px; font-weight: 700; color: var(--teal-800); line-height: var(--leading-tight); }
 .sectionSub   { font-size: var(--text-xs); color: var(--ink-500); margin-top: var(--space-0_5); }

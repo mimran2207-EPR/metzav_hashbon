@@ -102,7 +102,7 @@ function DrillRow({ icon, title, badge, meta, balance, count, countLabel, holder
   return (
     <button data-focusring onClick={onClick} className={`${s.listRow} ${s.listRowTeal}`} style={{ padding: "12px 14px" }}>
       <div style={{ width: 36, height: 36, borderRadius: 10, flex: "none", display: "grid", placeItems: "center",
-        background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", boxShadow: "0 3px 8px rgba(42,167,184,.3)" }}>
+        background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", boxShadow: "0 3px 8px rgba(var(--teal-rgb),.3)" }}>
         <Icon name={icon} size={18} color="#fff"/>
       </div>
       <div style={{ minWidth: 0, flex: 1, textAlign: "start" }}>
@@ -174,7 +174,7 @@ function PropertyContextPanel({ subItem, subject, totalBalance, onAction }) {
                 borderRadius: 999, padding: "7px 14px", cursor: "pointer",
                 fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, color: "var(--teal-700)",
                 transition: "background .13s ease, border-color .13s ease, transform .1s ease",
-                boxShadow: "0 1px 4px rgba(42,167,184,.10)" }}>
+                boxShadow: "0 1px 4px rgba(var(--teal-rgb),.10)" }}>
               <Icon name={a.icon} size={14} color="var(--teal-600)"/>
               {a.label}
             </button>
@@ -251,7 +251,7 @@ function HolderHistory({ holders, naxasId }) {
     <div style={{ marginTop: 18 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 9 }}>
         <div style={{ width: 28, height: 28, borderRadius: 8, flex: "none", display: "grid", placeItems: "center",
-          background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", boxShadow: "0 3px 8px rgba(42,167,184,.3)" }}>
+          background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))", boxShadow: "0 3px 8px rgba(var(--teal-rgb),.3)" }}>
           <Icon name="history" size={16} color="#fff"/>
         </div>
         <div>
@@ -371,12 +371,12 @@ function entityCardStyle(active) {
   return { display: "flex", alignItems: "center", cursor: "pointer", textAlign: "start",
     background: active ? "var(--teal-50)" : "var(--white)", border: `1.5px solid ${active ? "var(--teal-500)" : "var(--ink-200)"}`,
     borderRadius: 14, padding: "11px 14px", transition: "all .14s ease", fontFamily: "var(--font)",
-    boxShadow: active ? "0 0 0 4px rgba(42,167,184,.16), 0 4px 12px rgba(42,167,184,.18)" : "var(--shadow-card)" };
+    boxShadow: active ? "0 0 0 4px rgba(var(--teal-rgb),.16), 0 4px 12px rgba(var(--teal-rgb),.18)" : "var(--shadow-card)" };
 }
 function entityIcon(active) {
   return { width: 36, height: 36, borderRadius: 10, flex: "none", display: "grid", placeItems: "center",
     background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))",
-    boxShadow: "0 3px 8px rgba(42,167,184,.30)" };
+    boxShadow: "0 3px 8px rgba(var(--teal-rgb),.30)" };
 }
 
 function BalancesTable({ services, totals, density, txns, txnTypes }) {
