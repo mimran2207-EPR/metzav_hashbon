@@ -712,30 +712,33 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
     else { setOpenEntity(id); setOpenCharge(null); }
   };
 
-  // Column definitions — RTL: first col = rightmost visually
-  // מס' מזהה moved to column 3 (closer to row number)
+  // Column definitions — table-layout:fixed so every column stays its width.
+  // Widths are px (set on <col> elements); "auto" spreads the remaining space.
   const COLS = [
-    { label: "רץ",           w: 44,  align: "center" },
-    { label: "נושא",         w: 56,  align: "center" },
-    { label: "מס' מזהה",    w: 110, align: "end" },
-    { label: "תיאור נושא",   w: null,align: "start" },
-    { label: "פרטי אב",      w: 220, align: "start" },
-    { label: "סוגי נכס",     w: 90,  align: "center" },
-    { label: "מחזיק נוכחי",  w: 110, align: "center" },
-    { label: "יתרה",          w: 120, align: "end" },
-    { label: "מסמכים",        w: 76,  align: "center" },
-    { label: "",              w: 44,  align: "center" },
+    { label: "רץ",          w: "40px",   align: "center" },
+    { label: "נושא",        w: "52px",   align: "center" },
+    { label: "מס' מזהה",   w: "96px",   align: "end" },
+    { label: "תיאור נושא",  w: "130px",  align: "start" },
+    { label: "פרטי אב",     w: "auto",   align: "start" },
+    { label: "סוגי נכס",    w: "80px",   align: "center" },
+    { label: "מחזיק נוכחי", w: "88px",   align: "center" },
+    { label: "יתרה",         w: "110px",  align: "end" },
+    { label: "מסמכים",       w: "72px",   align: "center" },
+    { label: "",             w: "40px",   align: "center" },
   ];
 
   return (
     <>
     <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid var(--ink-200)" }}>
-      <table style={{ width: "100%", minWidth: 860, borderCollapse: "collapse", fontSize: 13 }}>
+      <table style={{ width: "100%", minWidth: 860, borderCollapse: "collapse", fontSize: 13, tableLayout: "fixed" }}>
+        <colgroup>
+          {COLS.map((c, i) => <col key={i} style={{ width: c.w === "auto" ? undefined : c.w }}/>)}
+        </colgroup>
         <thead>
           <tr style={{ background: "linear-gradient(135deg,var(--teal-700),var(--teal-800))", position: "sticky", top: 0, zIndex: 2 }}>
             {COLS.map((c, i) => (
               <th key={i} style={{ textAlign: c.align, padding: "10px 12px", fontSize: 12, fontWeight: 700,
-                color: "rgba(255,255,255,.95)", whiteSpace: "nowrap", width: c.w || undefined }}>
+                color: "rgba(255,255,255,.95)", whiteSpace: "nowrap", overflow: "hidden" }}>
                 {c.label}
               </th>
             ))}
@@ -772,18 +775,22 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
                   </td>
                   {/* תיאור נושא */}
                   <td style={{ padding: cellPad }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 26, height: 26, borderRadius: 7, flex: "none", display: "grid", placeItems: "center",
+                    <div style={{ display: "flex", alignItems: "center", gap: 7, overflow: "hidden" }}>
+                      <div style={{ width: 24, height: 24, borderRadius: 6, flex: "none", display: "grid", placeItems: "center",
                         background: "linear-gradient(135deg,var(--teal-400),var(--teal-600))" }}>
-                        <Icon name={entity.subject.icon} size={13} color="#fff"/>
+                        <Icon name={entity.subject.icon} size={12} color="#fff"/>
                       </div>
-                      <span style={{ fontWeight: 600, color: "var(--ink-800)" }}>{entity.subject.name}</span>
+                      <span style={{ fontWeight: 600, color: "var(--ink-800)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {entity.subject.name}
+                      </span>
                     </div>
                   </td>
                   {/* פרטי אב */}
-                  <td style={{ padding: cellPad, color: "var(--ink-muted)", fontSize: 12,
-                    maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {entity.name}{entity.meta && entity.meta !== entity.subject.name ? ` · ${entity.meta}` : ""}
+                  <td style={{ padding: cellPad }}>
+                    <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      color: "var(--ink-muted)", fontSize: 12 }}>
+                      {entity.name}{entity.meta && entity.meta !== entity.subject.name ? ` · ${entity.meta}` : ""}
+                    </div>
                   </td>
                   {/* סוגי נכס — clickable, opens property-types modal */}
                   <td style={{ padding: cellPad, textAlign: "center" }}>
@@ -799,25 +806,22 @@ function AllEntitiesView({ subjects, filterSubject, density, txnTypes, onAction,
                       {entity.propertyTypes.length > 0 && <Icon name="chevdown" size={11} color="var(--teal-500)"/>}
                     </button>
                   </td>
-                  {/* מחזיק נוכחי — ✓ if active holder; click opens holders history modal */}
+                  {/* מחזיק נוכחי — ✓ only when active holder exists; click always opens modal */}
                   {(() => {
                     const current = entity.holders.find(h => h.current);
-                    const hasHistory = entity.holders.length > 0;
+                    const hasHolders = entity.holders.length > 0;
                     return (
                       <td style={{ padding: cellPad, textAlign: "center" }}>
-                        <button onClick={e => { e.stopPropagation(); if (hasHistory) setHoldersModal(entity); }}
-                          title={current ? `מחזיק: ${current.name}` : "ללא מחזיק נוכחי — לחץ להיסטוריה"}
-                          style={{ display: "inline-flex", alignItems: "center", gap: 5,
-                            border: current ? "1px solid var(--ok-fg)" : "1px solid var(--amber)",
-                            background: current ? "var(--ok-bg)" : "#FDF3DE",
-                            color: current ? "var(--ok-fg)" : "var(--warn-fg)",
-                            borderRadius: 6, padding: "3px 9px", cursor: hasHistory ? "pointer" : "default",
-                            fontFamily: "var(--font)", fontSize: 12, fontWeight: 700 }}>
-                          {current ? (
-                            <><span style={{ fontSize: 14 }}>✓</span>{current.name.split(" ")[0]}</>
-                          ) : (
-                            <><Icon name="history" size={12} color="var(--warn-fg)"/> היסטוריה</>
-                          )}
+                        <button onClick={e => { e.stopPropagation(); if (hasHolders) setHoldersModal(entity); }}
+                          aria-label={current ? `מחזיק נוכחי: ${current.name} — לחץ לפרטים` : "ללא מחזיק נוכחי — לחץ להיסטוריה"}
+                          style={{ width: 32, height: 32, display: "grid", placeItems: "center",
+                            border: current ? "1.5px solid var(--ok-fg)" : "1.5px solid var(--ink-300)",
+                            background: current ? "var(--ok-bg)" : "transparent",
+                            borderRadius: 8, cursor: hasHolders ? "pointer" : "default",
+                            transition: "all .13s ease" }}>
+                          {current
+                            ? <span style={{ fontSize: 16, color: "var(--ok-fg)", fontWeight: 800, lineHeight: 1 }}>✓</span>
+                            : <Icon name="history" size={14} color="var(--ink-400)"/>}
                         </button>
                       </td>
                     );
